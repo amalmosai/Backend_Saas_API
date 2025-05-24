@@ -8,6 +8,7 @@ const app: Express = express();
 import errorhandler from "../src/middlewares/errorHandler";
 import swaggerDocument from "./utils/swagger";
 import swaggerUi from "swagger-ui-express";
+import authRoute from "./Routes/auth.route";
 
 //1_global middlewares
 app.use(
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api/v1/auth", authRoute);
 
 app.use(errorhandler);
 

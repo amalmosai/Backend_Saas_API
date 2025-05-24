@@ -7,6 +7,7 @@ import { generateToken } from "../utils/generateToken";
 import { sendWelcomeEmail } from "../services/email.service";
 import { clearCookie, setCookie } from "../utils/cookieUtils";
 import { comparePasswords, hashPassword } from "../utils/passwordUtils";
+import Tenant from "../models/tenant.model";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -34,6 +35,17 @@ class AuthController {
       }
       console.log(avatar);
 
+      const familyName = "Elsaqar";
+
+      let tenant = await Tenant.findOne({ familyName });
+      if (!tenant) {
+        tenant = new Tenant({
+          familyName,
+          slug: familyName.toLowerCase().replace(/\s+/g, "-"),
+        });
+        await tenant.save();
+      }
+
       const emailAlreadyExists = await User.findOne({ email });
 
       if (emailAlreadyExists) {
@@ -47,6 +59,7 @@ class AuthController {
       const hashedPassword = await hashPassword(password);
 
       const newUser = new User({
+        tenantId: tenant._id,
         fname,
         lname,
         email,

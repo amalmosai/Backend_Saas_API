@@ -5,6 +5,8 @@ import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import { generateToken } from "../utils/generateToken";
 import { sendWelcomeEmail } from "../services/email.service";
+import { clearCookie, setCookie } from "../utils/cookieUtils";
+import { comparePasswords, hashPassword } from "../utils/passwordUtils";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -31,6 +33,7 @@ class AuthController {
         avatar = DEFAULT_IMAGE_URL;
       }
       console.log(avatar);
+
       const emailAlreadyExists = await User.findOne({ email });
 
       if (emailAlreadyExists) {
@@ -41,7 +44,8 @@ class AuthController {
       const sanitizedPhone = phone.replace(/\D/g, "");
       const phoneNumber = sanitizedPhone ? Number(sanitizedPhone) : null;
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await hashPassword(password);
+
       const newUser = new User({
         fname,
         lname,
@@ -61,12 +65,7 @@ class AuthController {
 
       sendWelcomeEmail(newUser);
 
-      res.cookie("accessToken", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "devlopment",
-        // signed: true,
-        sameSite: "strict",
-      });
+      setCookie(res, "accessToken", token);
 
       res.status(HttpCode.CREATED).json({
         sucess: true,
@@ -94,7 +93,7 @@ class AuthController {
         );
       }
 
-      const isPasswordCorrect = await bcrypt.compare(
+      const isPasswordCorrect = await comparePasswords(
         password,
         authUser.password
       );
@@ -113,12 +112,7 @@ class AuthController {
         id: authUser._id,
       });
 
-      res.cookie("accessToken", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "devlopment",
-        sameSite: "strict",
-        // signed: true,
-      });
+      setCookie(res, "accessToken", token);
 
       res.status(HttpCode.OK).json({
         sucess: true,
@@ -131,12 +125,7 @@ class AuthController {
   // User logout
   logout = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      res.clearCookie("accessToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "devlopment",
-        sameSite: "strict",
-        // signed: true,
-      });
+      clearCookie(res, "accessToken");
 
       res.status(HttpCode.OK).json({
         success: true,

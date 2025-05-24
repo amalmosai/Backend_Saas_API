@@ -140,7 +140,7 @@ class AuthController {
 
       res.status(HttpCode.OK).json({
         success: true,
-        message: "User  successfully logged out",
+        message: "User successfully logged out",
         data: null,
       });
     }

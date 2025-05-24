@@ -3,7 +3,11 @@ import IUser from "../Interfaces/user.interface";
 
 const userSchema = new Schema<IUser>(
   {
-    tenantId: { type: String, required: true },
+    tenantId: {
+      type: Schema.Types.ObjectId,
+      ref: "tenant",
+      required: true,
+    },
     fname: {
       type: String,
       required: [true, "first Name is required"],
@@ -59,6 +63,23 @@ const userSchema = new Schema<IUser>(
         message: "{VALUE} is not supported",
       },
       required: [true, "Family Relationship is required"],
+    },
+    status: {
+      type: String,
+      enum: {
+        values: ["pending", "reject", "accept"],
+        message: "{VALUE} is not supported",
+      },
+      default: "pending",
+    },
+    address: {
+      type: String,
+    },
+    birthday: {
+      type: Date,
+    },
+    personalProfile: {
+      type: String,
     },
   },
   { timestamps: true }

@@ -6,7 +6,7 @@ const userSchema = new Schema<IUser>(
     tenantId: {
       type: Schema.Types.ObjectId,
       ref: "tenant",
-      required: true,
+      // required: true,
     },
     fname: {
       type: String,

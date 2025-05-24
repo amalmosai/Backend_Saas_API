@@ -5,6 +5,10 @@ import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import { generateToken } from "../utils/generateToken";
 import { sendWelcomeEmail } from "../services/email.service";
+
+const DEFAULT_IMAGE_URL =
+  "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
+
 class AuthController {
   // Register a new user
   register = asyncWrapper(
@@ -24,7 +28,7 @@ class AuthController {
       if (req.file?.filename) {
         avatar = req.file?.filename;
       } else {
-        avatar = image;
+        avatar = DEFAULT_IMAGE_URL;
       }
       console.log(avatar);
       const emailAlreadyExists = await User.findOne({ email });
@@ -34,6 +38,8 @@ class AuthController {
           createCustomError("Email already Exists", HttpCode.BAD_REQUEST)
         );
       }
+      const sanitizedPhone = phone.replace(/\D/g, "");
+      const phoneNumber = sanitizedPhone ? Number(sanitizedPhone) : null;
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new User({
@@ -41,11 +47,12 @@ class AuthController {
         lname,
         email,
         password: hashedPassword,
-        phone: Number(phone),
+        phone: phoneNumber,
         familyBranch,
         familyRelationship,
         image: avatar,
       });
+
       const token = await generateToken({
         role: newUser.role,
         id: newUser._id,
@@ -53,14 +60,18 @@ class AuthController {
       await newUser.save();
 
       sendWelcomeEmail(newUser);
-      // sendVerificationEmail(newUser, token)
-      // After await newUser.save();
+
+      res.cookie("accessToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "devlopment",
+        // signed: true,
+        sameSite: "strict",
+      });
 
       res.status(HttpCode.CREATED).json({
         sucess: true,
         data: newUser,
         message: "user sucessfully added",
-        token: token,
       });
     }
   );
@@ -97,16 +108,40 @@ class AuthController {
         );
       }
 
-      const tokenUser = await generateToken({
+      const token = await generateToken({
         role: authUser.role,
         id: authUser._id,
+      });
+
+      res.cookie("accessToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "devlopment",
+        sameSite: "strict",
+        // signed: true,
       });
 
       res.status(HttpCode.OK).json({
         sucess: true,
         data: authUser,
         message: "user sucessfully login",
-        token: tokenUser,
+      });
+    }
+  );
+
+  // User logout
+  logout = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "devlopment",
+        sameSite: "strict",
+        // signed: true,
+      });
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: "User  successfully logged out",
+        data: null,
       });
     }
   );

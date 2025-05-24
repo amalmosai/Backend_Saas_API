@@ -5,6 +5,7 @@ import cors from "cors";
 import path from "path";
 const app: Express = express();
 
+import cookieParser from "cookie-parser";
 import errorhandler from "../src/middlewares/errorHandler";
 import swaggerDocument from "./utils/swagger";
 import swaggerUi from "swagger-ui-express";
@@ -25,6 +26,8 @@ if (process.env.NODE_ENV === "devlopment") {
 }
 
 app.use(express.json());
+app.use(cookieParser());
+
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

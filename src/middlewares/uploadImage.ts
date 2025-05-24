@@ -1,6 +1,8 @@
 import multer, { FileFilterCallback } from "multer";
 import express, { NextFunction, Request } from "express";
 import path from "path";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../services/cloudinary.service";
 
 const route = express.Router();
 route.use(express.static("public/uploads"));
@@ -8,23 +10,26 @@ route.use(express.static("public/uploads"));
 type DestinationCallback = (error: Error | null, destination: string) => void;
 type FileNameCallback = (error: Error | null, filename: string) => void;
 
-let filestorage = multer.diskStorage({
-  destination: function (
-    req: Request,
-    file: Express.Multer.File,
-    cb: DestinationCallback
-  ) {
-    cb(null, "public/uploads");
-  },
-  filename: function (
-    req: Request,
-    file: Express.Multer.File,
-    cb: FileNameCallback
-  ) {
-    const extension = path.extname(file.originalname);
-    console.log(file.originalname);
-    const filename = `${Date.now()}${extension}`;
-    cb(null, filename);
+// Test the configuration
+cloudinary.api
+  .ping()
+  .then(() => {
+    console.log("Cloudinary is configured correctly");
+  })
+  .catch((err) => {
+    console.error("Error configuring Cloudinary:", err);
+  });
+
+// Create store from Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: "uploads",
+      allowed_formats: ["jpg", "jpeg", "png", "gif"],
+      public_id: `${Date.now()}-${file.originalname.split(".")[0]}`,
+      transformation: [{ width: 500, height: 500, crop: "limit" }],
+    };
   },
 });
 
@@ -43,6 +48,6 @@ const multerFilter = function (
 };
 
 export const upload = multer({
-  storage: filestorage,
+  storage: storage,
   fileFilter: multerFilter,
 });

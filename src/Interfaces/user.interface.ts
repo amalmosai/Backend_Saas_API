@@ -15,4 +15,5 @@ export default interface IUser {
   address?: string;
   birthday?: Date;
   personalProfile?: string;
+  permissions: any;
 }

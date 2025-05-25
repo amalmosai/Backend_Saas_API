@@ -16,7 +16,7 @@ export const setCookie = (
 ) => {
   const defaultOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "devlopment",
+    secure: process.env.NODE_ENV === "development",
     sameSite: "strict" as const,
   };
 
@@ -29,7 +29,7 @@ export const setCookie = (
 export const clearCookie = (res: Response, name: string) => {
   res.clearCookie(name, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "devlopment",
+    secure: process.env.NODE_ENV === "development",
     sameSite: "strict",
   });
 };

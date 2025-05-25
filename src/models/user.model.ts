@@ -1,5 +1,6 @@
 import { Schema, model, Types } from "mongoose";
 import IUser from "../Interfaces/user.interface";
+import { defaultPermissions, permissionSchema } from "./permission.model";
 
 const userSchema = new Schema<IUser>(
   {
@@ -80,6 +81,10 @@ const userSchema = new Schema<IUser>(
     },
     personalProfile: {
       type: String,
+    },
+    permissions: {
+      type: [permissionSchema],
+      default: defaultPermissions,
     },
   },
   { timestamps: true }

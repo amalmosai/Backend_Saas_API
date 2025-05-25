@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Jwt, { Secret } from "jsonwebtoken";
+import User from "../models/user.model";
 const { createCustomError, HttpCode } = require("../errors/customError");
 
 export const authenticateUser = async (
@@ -8,7 +9,6 @@ export const authenticateUser = async (
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
-  console.log(authHeader);
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return next(createCustomError(`No token provided`, HttpCode.UNAUTHORIZED));
@@ -47,6 +47,79 @@ export const authorizeRoles = (...roles: string[]) => {
         )
       );
     }
+    next();
+  };
+};
+
+export const authorizePermission = (
+  entity: string,
+  action: "view" | "update" | "create" | "delete"
+) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.body.authUser.id;
+
+    if (!userId) {
+      return next(createCustomError("Unauthorized", HttpCode.UNAUTHORIZED));
+    }
+
+    const user = await User.findById({ _id: userId });
+
+    if (!user) {
+      return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+    }
+
+    const permission = user.permissions.find((p: any) => p.entity === entity);
+
+    if (!permission || !permission[action]) {
+      return next(
+        createCustomError(
+          `You do not have permission to ${action} ${entity}`,
+          HttpCode.FORBIDDEN
+        )
+      );
+    }
+    console.log("user have permission");
+    next();
+  };
+};
+
+export const authorizePermissionFromBody = () => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.body.authUser?.id;
+
+    if (!userId) {
+      return next(createCustomError("Unauthorized", HttpCode.UNAUTHORIZED));
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return next(createCustomError("User  not found", HttpCode.NOT_FOUND));
+    }
+
+    const { entity, action } = req.body;
+
+    if (!entity || !action) {
+      return next(
+        createCustomError(
+          "Entity and action are required",
+          HttpCode.BAD_REQUEST
+        )
+      );
+    }
+
+    const permission = user.permissions.find((p: any) => p.entity === entity);
+
+    if (!permission || !permission[action]) {
+      return next(
+        createCustomError(
+          `You do not have permission to ${action} ${entity}`,
+          HttpCode.FORBIDDEN
+        )
+      );
+    }
+
+    console.log("User has permission");
     next();
   };
 };

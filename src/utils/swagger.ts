@@ -336,6 +336,141 @@ const options: swaggerJsdoc.Options = {
           },
         },
       },
+
+      /** permission route documentation**/
+      "/permission/": {
+        post: {
+          summary: "check permission",
+          tags: ["permission"],
+          description: "check user permission for actions",
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    entity: {
+                      type: "string",
+                      description:
+                        "The resource or entity for which permission is being checked (e.g., 'user', 'member')",
+                    },
+                    action: {
+                      type: "string",
+                      description:
+                        "The type of action requested on the entity (e.g., 'view', 'update', 'create', 'delete').",
+                    },
+                  },
+                },
+                required: ["entity", "action"],
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "You have permission to make this action",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   },
   apis: ["../routes/*.ts", "../models/*.ts"],

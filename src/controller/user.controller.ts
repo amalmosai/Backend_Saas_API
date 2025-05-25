@@ -77,6 +77,72 @@ class UserController {
       });
     }
   );
+
+  getAllUsers = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const familyName = "Elsaqar";
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const skip = (page - 1) * limit;
+
+      let tenant = await Tenant.findOne({ familyName });
+      const totalUsers = await User.countDocuments({ tenantId: tenant?._id });
+
+      const users = await User.find({ tenantId: tenant?._id })
+        .select("-password")
+        .skip(skip)
+        .limit(limit);
+
+      const totalPages = Math.ceil(totalUsers / limit);
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: users,
+        pagination: {
+          totalUsers,
+          totalPages,
+          currentPage: page,
+          pageSize: users.length,
+        },
+        message: "users get sucessfully",
+      });
+    }
+  );
+
+  getUser = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+
+      const user = await User.findById(id).select("-password");
+
+      if (!user) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: user,
+        message: "user get sucessfully",
+      });
+    }
+  );
+
+  deleteUser = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+
+      const deletedUser = await User.findByIdAndDelete(id);
+      if (!deletedUser)
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: null,
+        message: "User deleted successfully.",
+      });
+    }
+  );
 }
 
 export default new UserController();

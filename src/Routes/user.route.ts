@@ -14,4 +14,22 @@ router
     UserController.createUser
   );
 
+router
+  .route("/")
+  .get(
+    authenticateUser,
+    authorizePermission("user", "view"),
+    UserController.getAllUsers
+  );
+
+router.route("/:id").get(authenticateUser, UserController.getUser);
+
+router
+  .route("/:id")
+  .delete(
+    authenticateUser,
+    authorizePermission("user", "delete"),
+    UserController.deleteUser
+  );
+
 export default router;

@@ -31,6 +31,7 @@ const options: swaggerJsdoc.Options = {
     consumes: ["application/json"],
     produces: ["application/json"],
     paths: {
+      /** user route documentation**/
       "/auth/register": {
         post: {
           summary: "Register a new user",
@@ -660,6 +661,338 @@ const options: swaggerJsdoc.Options = {
                       statusCode: {
                         type: "number",
                         default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        get: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          summary: "Get all users",
+          tags: ["user"],
+          description: "Get all users",
+          parameters: [
+            {
+              name: "page",
+              in: "query",
+              required: false,
+              schema: {
+                type: "integer",
+                default: 1,
+                description: "The page number to retrieve",
+              },
+            },
+            {
+              name: "limit",
+              in: "query",
+              required: false,
+              schema: {
+                type: "integer",
+                default: 10,
+                description: "The number of templates to retrieve per page",
+              },
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Get all users successfuly",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/user/{id}": {
+        delete: {
+          summary: "Delete a user.",
+          tags: ["user"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          description: "Delete a user by id",
+          responses: {
+            "200": {
+              description: "User deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        get: {
+          summary: "Get a user by id.",
+          tags: ["user"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          description: "Get a user by id",
+          responses: {
+            "200": {
+              description: "Get user successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
                       },
                     },
                   },

@@ -340,6 +340,11 @@ const options: swaggerJsdoc.Options = {
       /** permission route documentation**/
       "/permission/": {
         post: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
           summary: "check permission",
           tags: ["permission"],
           description: "check user permission for actions",
@@ -360,8 +365,201 @@ const options: swaggerJsdoc.Options = {
                         "The type of action requested on the entity (e.g., 'view', 'update', 'create', 'delete').",
                     },
                   },
+                  required: ["entity", "action"],
                 },
-                required: ["entity", "action"],
+              },
+            },
+          },
+          responses: {
+            "201": {
+              description: "A new user created sucessfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+
+      /** user routes documentation**/
+      "/user/": {
+        post: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          summary: "create a new user",
+          tags: ["user"],
+          description: "create a new user",
+          requestBody: {
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    fname: {
+                      type: "string",
+                      description: "The user's first name",
+                    },
+                    lname: {
+                      type: "string",
+                      description: "The user's last name",
+                    },
+                    email: {
+                      type: "string",
+                      format: "email",
+                      description: "The user's email address",
+                    },
+                    password: {
+                      type: "string",
+                      format: "password",
+                      description: "The user's password",
+                    },
+                    phone: {
+                      type: "number",
+                      description: "The user's phone number",
+                    },
+                    image: {
+                      type: "string",
+                      format: "binary",
+                      description: "The user's image",
+                    },
+                    familyBranch: {
+                      type: "string",
+                      enum: [
+                        "branch_1",
+                        "branch_2",
+                        "branch_3",
+                        "branch_4",
+                        "branch_5",
+                      ],
+                      description: "The user's family branch",
+                    },
+                    familyRelationship: {
+                      type: "string",
+                      enum: [
+                        "son",
+                        "daughter",
+                        "wife",
+                        "husband",
+                        "grandchild",
+                        "other",
+                      ],
+                      description: "The user's family relationship",
+                    },
+                    role: {
+                      type: "string",
+                      description: "The user's role",
+                      enum: ["super_admin", "admin", "moderator", "user"],
+                    },
+                  },
+                  required: [
+                    "email",
+                    "password",
+                    "fname",
+                    "lname",
+                    "phone",
+                    "familyRelationship",
+                    "familyBranch",
+                  ],
+                },
               },
             },
           },

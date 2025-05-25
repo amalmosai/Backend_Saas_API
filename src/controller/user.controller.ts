@@ -1,0 +1,82 @@
+import { Request, Response, NextFunction } from "express";
+import asyncWrapper from "../middlewares/asynHandler";
+import User from "../models/user.model";
+import { HttpCode, createCustomError } from "../errors/customError";
+import { hashPassword } from "../utils/passwordUtils";
+import Tenant from "../models/tenant.model";
+import {
+  defaultPermissions,
+  superAdminPermissions,
+} from "../models/permission.model";
+
+class UserController {
+  createUser = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const {
+        fname,
+        lname,
+        email,
+        password,
+        phone,
+        familyBranch,
+        familyRelationship,
+        image,
+        role,
+      } = req.body;
+
+      const emailExists = await User.findOne({ email });
+
+      if (emailExists) {
+        return next(
+          createCustomError("Email already exists", HttpCode.BAD_REQUEST)
+        );
+      }
+
+      let permission;
+      let status;
+      if (role === "super_admin") {
+        permission = superAdminPermissions;
+        status = "accept";
+      } else {
+        permission = defaultPermissions;
+        status = "pending";
+      }
+
+      const familyName = "Elsaqar";
+
+      let tenant = await Tenant.findOne({ familyName });
+      if (!tenant) {
+        tenant = new Tenant({
+          familyName,
+          slug: familyName.toLowerCase().replace(/\s+/g, "-"),
+        });
+        await tenant.save();
+      }
+
+      const hashedPwd = await hashPassword(password);
+
+      const user = await User.create({
+        tenantId: tenant._id,
+        fname,
+        lname,
+        email,
+        password: hashedPwd,
+        phone,
+        familyBranch,
+        familyRelationship,
+        image,
+        permissions: permission,
+        role,
+        status,
+      });
+
+      res.status(HttpCode.CREATED).json({
+        success: true,
+        data: user,
+        message: "user created sucessfully",
+      });
+    }
+  );
+}
+
+export default new UserController();

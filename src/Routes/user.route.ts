@@ -32,4 +32,8 @@ router
     UserController.deleteUser
   );
 
+router
+  .route("/:id")
+  .put(authenticateUser, upload.single("image"), UserController.updateUser);
+
 export default router;

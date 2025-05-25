@@ -143,6 +143,27 @@ class UserController {
       });
     }
   );
+
+  updateUser = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+
+      const updatedUser = await User.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (!updatedUser) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: updatedUser,
+        message: "user updated sucessfully",
+      });
+    }
+  );
 }
 
 export default new UserController();

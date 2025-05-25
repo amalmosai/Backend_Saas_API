@@ -1,4 +1,6 @@
+import { doubleclicksearch_v2 } from "googleapis";
 import swaggerJsdoc from "swagger-jsdoc";
+import { deserialize } from "v8";
 
 const options: swaggerJsdoc.Options = {
   swaggerDefinition: {
@@ -565,8 +567,8 @@ const options: swaggerJsdoc.Options = {
             },
           },
           responses: {
-            "200": {
-              description: "You have permission to make this action",
+            "201": {
+              description: "user created successfully",
               content: {
                 "application/json": {
                   schema: {
@@ -993,6 +995,204 @@ const options: swaggerJsdoc.Options = {
                       statusCode: {
                         type: "number",
                         default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        put: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          summary: "update user",
+          tags: ["user"],
+          description: "update user by id",
+          requestBody: {
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    fname: {
+                      type: "string",
+                      description: "The user's first name",
+                    },
+                    lname: {
+                      type: "string",
+                      description: "The user's last name",
+                    },
+                    email: {
+                      type: "string",
+                      format: "email",
+                      description: "The user's email address",
+                    },
+                    password: {
+                      type: "string",
+                      format: "password",
+                      description: "The user's password",
+                    },
+                    phone: {
+                      type: "number",
+                      description: "The user's phone number",
+                    },
+                    image: {
+                      type: "string",
+                      format: "binary",
+                      description: "The user's image",
+                    },
+                    familyBranch: {
+                      type: "string",
+                      enum: [
+                        "branch_1",
+                        "branch_2",
+                        "branch_3",
+                        "branch_4",
+                        "branch_5",
+                      ],
+                      description: "The user's family branch",
+                    },
+                    familyRelationship: {
+                      type: "string",
+                      enum: [
+                        "son",
+                        "daughter",
+                        "wife",
+                        "husband",
+                        "grandchild",
+                        "other",
+                      ],
+                      description: "The user's family relationship",
+                    },
+                    role: {
+                      type: "string",
+                      description: "The user's role",
+                      enum: ["super_admin", "admin", "moderator", "user"],
+                    },
+                    status: {
+                      type: "string",
+                      enum: ["pending", "reject", "accept"],
+                      description: "The user's staus",
+                    },
+                    address: {
+                      type: "string",
+                      description: "The user's address",
+                    },
+                    birthday: {
+                      type: "string",
+                      format: "date",
+                      description: "The user's birthday",
+                    },
+                    personalProfile: {
+                      type: "string",
+                      description: "The user's personal Profile",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "user updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
                       },
                     },
                   },

@@ -23,7 +23,7 @@ class UserController {
         image,
         role,
       } = req.body;
-
+      
       const emailExists = await User.findOne({ email });
 
       if (emailExists) {
@@ -179,6 +179,26 @@ class UserController {
         success: true,
         data: updatedUser,
         message: "user updated sucessfully",
+      });
+    }
+  );
+
+  updatePermissions = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      let { permissions } = req.body;
+      console.log(permissions);
+
+      const user = await User.findById(id);
+      if (!user) throw createCustomError("User not found", HttpCode.NOT_FOUND);
+
+      user.permissions = permissions;
+      await user.save();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: "Permissions updated",
+        data: user,
       });
     }
   );

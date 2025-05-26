@@ -11,11 +11,9 @@ const userSchema = new Schema<IUser>(
     },
     fname: {
       type: String,
-      required: [true, "first Name is required"],
     },
     lname: {
       type: String,
-      required: [true, "last Name is required"],
     },
     email: {
       type: String,

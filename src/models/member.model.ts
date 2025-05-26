@@ -12,11 +12,9 @@ const memberSchema = new Schema<IMember>(
       required: [true, "full Name is required"],
     },
     gender: {
-      enum: {
-        values: ["female", "male"],
-        message: "{VALUE} is not supported",
-      },
-      required: [true, "gender is required"],
+      type: String,
+      enum: ["female", "male"],
+      required: [true, "Gender is required"],
     },
     birthday: {
       type: Date,

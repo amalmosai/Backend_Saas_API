@@ -36,4 +36,8 @@ router
   .route("/:id")
   .put(authenticateUser, upload.single("image"), UserController.updateUser);
 
+router
+  .route("/authUser")
+  .post(authenticateUser, UserController.getUserAuthuser);
+
 export default router;

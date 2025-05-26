@@ -385,7 +385,7 @@ const options: swaggerJsdoc.Options = {
                         type: "boolean",
                       },
                       data: {
-                        type: "object",
+                        type: null,
                       },
                       message: {
                         type: "string",
@@ -578,7 +578,7 @@ const options: swaggerJsdoc.Options = {
                         type: "boolean",
                       },
                       data: {
-                        type: null,
+                        type: "object",
                       },
                       message: {
                         type: "string",
@@ -714,7 +714,7 @@ const options: swaggerJsdoc.Options = {
                         type: "boolean",
                       },
                       data: {
-                        type: null,
+                        type: "object",
                       },
                       message: {
                         type: "string",
@@ -1099,6 +1099,122 @@ const options: swaggerJsdoc.Options = {
           responses: {
             "200": {
               description: "user updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/user/authUser": {
+        post: {
+          summary: "Get an auth user.",
+          tags: ["user"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          description: "Get authorized user",
+          responses: {
+            "200": {
+              description: "Get authorized user successfully",
               content: {
                 "application/json": {
                   schema: {

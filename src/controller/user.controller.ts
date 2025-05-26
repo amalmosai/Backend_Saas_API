@@ -128,6 +128,24 @@ class UserController {
     }
   );
 
+  getUserAuthuser = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id = req.body.authUser?.id;
+
+      const user = await User.findById(id).select("-password");
+
+      if (!user) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: user,
+        message: "Auth user get sucessfully",
+      });
+    }
+  );
+
   deleteUser = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;

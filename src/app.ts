@@ -6,7 +6,7 @@ import path from "path";
 const app: Express = express();
 
 import cookieParser from "cookie-parser";
-import errorhandler from "../src/middlewares/errorHandler";
+import errorhandler from "./middlewares/errorHandler";
 import swaggerDocument from "./utils/swagger";
 import swaggerUi from "swagger-ui-express";
 import authRoute from "./Routes/auth.route";
@@ -16,43 +16,72 @@ import memberRoute from "./Routes/member.route";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? ["https://elsaqr-family-saas-web-app-56kk.vercel.app"]
-    : ["http://localhost:5173"];
+    ? [
+        "https://elsaqr-family-saas-web-app-56kk.vercel.app",
+        "https://*.vercel.app",
+      ]
+    : ["http://localhost:5173", "https://www.getpostman.com", undefined];
 
-//1_global middlewares
+// CORS configuration
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
+
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.log("Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     exposedHeaders: ["set-cookie"],
   })
 );
 
+// Security middleware
 app.use(helmet());
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev")); //logger
-}
-
 app.use(express.json());
 app.use(cookieParser());
 
+// Logger for development
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+
+// Static files
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
+// API Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// API Routes
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/permission", permissionRoute);
 app.use("/api/v1/member", memberRoute);
 
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "API is running",
+    documentation: "/api-docs",
+  });
+});
+
+// Handle 404
+app.use((req, res) => {
+  res.status(404).json({
+    status: "error",
+    message: "Endpoint not found",
+  });
+});
+
+// Error handler
 app.use(errorhandler);
 
 export default app;

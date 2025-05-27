@@ -14,10 +14,22 @@ import userRoute from "./Routes/user.route";
 import permissionRoute from "./Routes/permission.route";
 import memberRoute from "./Routes/member.route";
 
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://elsaqr-family-saas-web-app-56kk.vercel.app"]
+    : ["http://localhost:5173"];
+
 //1_global middlewares
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],

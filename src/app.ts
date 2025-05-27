@@ -19,6 +19,7 @@ const allowedOrigins =
     ? [
         "https://elsaqr-family-saas-web-app-56kk.vercel.app",
         "https://*.vercel.app",
+        "https://web.postman.co",
       ]
     : ["http://localhost:5173", "https://www.getpostman.com", undefined];
 

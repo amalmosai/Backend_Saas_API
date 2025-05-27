@@ -5,6 +5,7 @@ interface CookieOptions {
   sameSite: "strict" | "lax" | "none";
   maxAge?: number;
   expires?: Date;
+  path?: string;
 }
 
 export const setCookie = (
@@ -16,7 +17,8 @@ export const setCookie = (
   const defaultOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+    sameSite: "none" as const,
+    path: "/",
   };
 
   res.cookie(name, value, {
@@ -29,6 +31,7 @@ export const clearCookie = (res: Response, name: string) => {
   res.clearCookie(name, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "none",
+    path: "/",
   });
 };

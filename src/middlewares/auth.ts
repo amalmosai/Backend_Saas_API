@@ -8,13 +8,13 @@ export const authenticateUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers.cookie;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader || !authHeader.startsWith("accessToken=")) {
     return next(createCustomError(`No token provided`, HttpCode.UNAUTHORIZED));
   }
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.split("=")[1];
   if (!token) {
     return next(
       createCustomError(`Authorization token not found"`, HttpCode.UNAUTHORIZED)

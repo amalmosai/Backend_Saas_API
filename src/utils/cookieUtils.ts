@@ -1,5 +1,4 @@
 import { Response } from "express";
-
 interface CookieOptions {
   httpOnly: boolean;
   secure: boolean;
@@ -16,8 +15,8 @@ export const setCookie = (
 ) => {
   const defaultOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "development",
-    sameSite: "strict" as const,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
   };
 
   res.cookie(name, value, {
@@ -29,7 +28,7 @@ export const setCookie = (
 export const clearCookie = (res: Response, name: string) => {
   res.clearCookie(name, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "development",
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
 };

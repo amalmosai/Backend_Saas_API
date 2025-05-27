@@ -78,8 +78,6 @@ class AuthController {
 
       sendWelcomeEmail(newUser);
 
-      setCookie(res, "accessToken", token);
-
       res.status(HttpCode.CREATED).json({
         sucess: true,
         data: newUser,

@@ -478,7 +478,7 @@ const options: swaggerJsdoc.Options = {
         },
       },
 
-      /** user routes documentation**/
+      /** user route documentation**/
       "/user/": {
         post: {
           security: [
@@ -696,7 +696,7 @@ const options: swaggerJsdoc.Options = {
               schema: {
                 type: "integer",
                 default: 10,
-                description: "The number of templates to retrieve per page",
+                description: "The number of users to retrieve per page",
               },
             },
           ],
@@ -838,7 +838,7 @@ const options: swaggerJsdoc.Options = {
                         type: "boolean",
                       },
                       data: {
-                        type: "object",
+                        type: null,
                       },
                       message: {
                         type: "string",
@@ -1005,6 +1005,16 @@ const options: swaggerJsdoc.Options = {
           security: [
             {
               bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
             },
           ],
           summary: "update user",
@@ -1373,6 +1383,621 @@ const options: swaggerJsdoc.Options = {
           responses: {
             "200": {
               description: "Update user permissions successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+
+      /** album route documentation**/
+      "/album/": {
+        post: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          summary: "create a new album",
+          tags: ["Album"],
+          description: "create a new album",
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The album's name",
+                    },
+                    description: {
+                      type: "string",
+                      description: "The album's description",
+                    },
+                  },
+                  required: ["name"],
+                },
+              },
+            },
+          },
+          responses: {
+            "201": {
+              description: "Album created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        get: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          summary: "Get all albums",
+          tags: ["Album"],
+          description: "Get all albums",
+          parameters: [
+            {
+              name: "page",
+              in: "query",
+              required: false,
+              schema: {
+                type: "integer",
+                default: 1,
+                description: "The page number to retrieve",
+              },
+            },
+            {
+              name: "limit",
+              in: "query",
+              required: false,
+              schema: {
+                type: "integer",
+                default: 10,
+                description: "The number of albums to retrieve per page",
+              },
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Get all albums successfuly",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/album/{id}": {
+        delete: {
+          summary: "Delete an album.",
+          tags: ["Album"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          description: "Delete an album by id",
+          responses: {
+            "200": {
+              description: "Album deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        get: {
+          summary: "Get an album by id.",
+          tags: ["Album"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          description: "Get an album by id",
+          responses: {
+            "200": {
+              description: "Get an album successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        put: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          summary: "Update an album",
+          tags: ["Album"],
+          description: "Update an album by id to add an image",
+          requestBody: {
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    image: {
+                      type: "string",
+                      format: "binary",
+                      description: "The image that will be added to the album",
+                    },
+                    description: {
+                      type: "strig",
+                      description: "The image's description",
+                    },
+                  },
+                  required: ["image"],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Album updated successfully",
               content: {
                 "application/json": {
                   schema: {

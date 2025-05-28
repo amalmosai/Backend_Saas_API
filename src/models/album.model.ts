@@ -7,10 +7,21 @@ const albumSchema = new Schema<IAlbum>(
       type: String,
       required: true,
     },
-    images: [{ type: String }],
-    createdBy: { type: Schema.Types.ObjectId, ref: "users", required: true },
+    description: {
+      type: String,
+    },
+    images: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "image",
+      },
+    ],
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "users",
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IAlbum>("Album", albumSchema);
+export default mongoose.model<IAlbum>("album", albumSchema);

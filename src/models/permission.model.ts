@@ -23,6 +23,20 @@ export const defaultPermissions = [
     delete: false,
     create: false,
   },
+  {
+    entity: "album",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+  {
+    entity: "financial",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
 ];
 export const superAdminPermissions = [
   { entity: "event", view: true, update: true, delete: true, create: true },
@@ -35,6 +49,20 @@ export const superAdminPermissions = [
   },
   {
     entity: "user",
+    view: true,
+    update: true,
+    delete: true,
+    create: true,
+  },
+  {
+    entity: "album",
+    view: true,
+    update: true,
+    delete: true,
+    create: true,
+  },
+  {
+    entity: "financial",
     view: true,
     update: true,
     delete: true,

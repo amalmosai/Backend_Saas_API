@@ -13,6 +13,7 @@ import authRoute from "./Routes/auth.route";
 import userRoute from "./Routes/user.route";
 import permissionRoute from "./Routes/permission.route";
 import memberRoute from "./Routes/member.route";
+import albumRoute from "./Routes/album.route";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
@@ -21,7 +22,13 @@ const allowedOrigins =
         "https://*.vercel.app",
         "https://web.postman.co",
       ]
-    : ["http://localhost:5173", "https://www.getpostman.com", undefined];
+    : [
+        "http://localhost:5173",
+        "https://www.getpostman.com",
+        "http://localhost:3001",
+        "http://localhost:8080",
+        undefined,
+      ];
 
 // CORS configuration
 app.use(
@@ -64,6 +71,7 @@ app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/permission", permissionRoute);
 app.use("/api/v1/member", memberRoute);
+app.use("/api/v1/album", albumRoute);
 
 // Health check endpoint
 app.get("/", (req, res) => {

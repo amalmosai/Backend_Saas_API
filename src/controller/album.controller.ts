@@ -9,7 +9,7 @@ class AlbumController {
   createAlbum = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { name, description } = req.body;
-      const userId = req.body.authUser?.id;
+      const userId = req.user?.id;
 
       if (!name) {
         return next(

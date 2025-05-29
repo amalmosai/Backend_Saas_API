@@ -3,18 +3,28 @@ import Jwt, { Secret } from "jsonwebtoken";
 import User from "../models/user.model";
 const { createCustomError, HttpCode } = require("../errors/customError");
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 export const authenticateUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.cookie;
+  const authHeader = req.headers.authorization || req.headers.cookie;
 
-  if (!authHeader || !authHeader.startsWith("accessToken=")) {
-    return next(createCustomError(`No token provided`, HttpCode.UNAUTHORIZED));
+  let token;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (authHeader && authHeader.startsWith("accessToken=")) {
+    token = authHeader.split("=")[1];
   }
 
-  const token = authHeader.split("=")[1];
   if (!token) {
     return next(
       createCustomError(`Authorization token not found"`, HttpCode.UNAUTHORIZED)
@@ -23,7 +33,7 @@ export const authenticateUser = async (
 
   try {
     const decoded = Jwt.verify(token, process.env.JWT_SECRET as Secret);
-    req.body.authUser = decoded;
+    req.user = decoded;
     next();
   } catch (error) {
     return next(
@@ -37,8 +47,8 @@ export const authenticateUser = async (
 
 export const authorizeRoles = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!roles.includes(req.body.authUser.role)) {
-      console.log(req.body.authUser.role);
+    if (!roles.includes(req.user.role)) {
+      console.log(req.user.role);
       console.log(roles);
       return next(
         createCustomError(
@@ -56,7 +66,7 @@ export const authorizePermission = (
   action: "view" | "update" | "create" | "delete"
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.body.authUser.id;
+    const userId = req.user.id;
 
     if (!userId) {
       return next(createCustomError("Unauthorized", HttpCode.UNAUTHORIZED));
@@ -85,7 +95,7 @@ export const authorizePermission = (
 
 export const authorizePermissionFromBody = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.body.authUser?.id;
+    const userId = req.user?.id;
 
     if (!userId) {
       return next(createCustomError("Unauthorized", HttpCode.UNAUTHORIZED));

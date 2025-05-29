@@ -14,6 +14,7 @@ import userRoute from "./Routes/user.route";
 import permissionRoute from "./Routes/permission.route";
 import memberRoute from "./Routes/member.route";
 import albumRoute from "./Routes/album.route";
+import financialRoute from "./Routes/financial.route";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
@@ -72,6 +73,7 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/permission", permissionRoute);
 app.use("/api/v1/member", memberRoute);
 app.use("/api/v1/album", albumRoute);
+app.use("/api/v1/financial", financialRoute);
 
 // Health check endpoint
 app.get("/", (req, res) => {
@@ -79,14 +81,6 @@ app.get("/", (req, res) => {
     status: "success",
     message: "API is running",
     documentation: "/api-docs",
-  });
-});
-
-// Handle 404
-app.use((req, res) => {
-  res.status(404).json({
-    status: "error",
-    message: "Endpoint not found",
   });
 });
 

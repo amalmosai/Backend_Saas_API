@@ -28,8 +28,8 @@ class AuthController {
       } = req.body;
 
       let avatar;
-      if (req.file?.filename) {
-        avatar = req.file?.filename;
+      if (req.file?.path) {
+        avatar = req.file.path.replace(/\\/g, "/");
       } else {
         avatar = DEFAULT_IMAGE_URL;
       }

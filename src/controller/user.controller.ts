@@ -35,8 +35,8 @@ class UserController {
       }
 
       let image;
-      if (req.file?.filename) {
-        image = req.file?.filename;
+      if (req.file?.path) {
+        image = req.file.path.replace(/\\/g, "/");
       } else {
         image = DEFAULT_IMAGE_URL;
       }
@@ -176,8 +176,8 @@ class UserController {
       const { id } = req.params;
 
       let updateData = req.body;
-      if (req.file?.filename) {
-        updateData.image = req.file?.filename;
+      if (req.file?.path) {
+        updateData.image = req.file.path.replace(/\\/g, "/");
       }
       const updatedUser = await User.findByIdAndUpdate(id, updateData, {
         new: true,
@@ -196,68 +196,68 @@ class UserController {
     }
   );
 
-  updatePermissions = asyncWrapper(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { id } = req.params;
-      let { permissions } = req.body;
-      console.log(permissions);
-
-      const user = await User.findById(id);
-      if (!user) throw createCustomError("User not found", HttpCode.NOT_FOUND);
-
-      user.permissions = permissions;
-      await user.save();
-
-      res.status(HttpCode.OK).json({
-        success: true,
-        message: "Permissions updated",
-        data: user,
-      });
-    }
-  );
-
   // updatePermissions = asyncWrapper(
   //   async (req: Request, res: Response, next: NextFunction) => {
   //     const { id } = req.params;
-  //     const { entity, action, value } = req.body;
-
-  //     const allowedEntities = ["event", "member", "user"];
-  //     const allowedActions = ["view", "create", "update", "delete"];
-
-  //     if (!allowedEntities.includes(entity)) {
-  //       return next(createCustomError("Invalid entity", HttpCode.BAD_REQUEST));
-  //     }
-
-  //     if (!allowedActions.includes(action)) {
-  //       return next(createCustomError("Invalid action", HttpCode.BAD_REQUEST));
-  //     }
-
-  //     if (typeof value !== "boolean") {
-  //       return next(
-  //         createCustomError("Value must be a boolean", HttpCode.BAD_REQUEST)
-  //       );
-  //     }
+  //     let { permissions } = req.body;
+  //     console.log(permissions);
 
   //     const user = await User.findById(id);
   //     if (!user) throw createCustomError("User not found", HttpCode.NOT_FOUND);
 
-  //     const permission = user.permissions.find(
-  //       (perm: any) => perm.entity === entity
-  //     );
-
-  //     if (permission) {
-  //       permission[action] = value;
-  //     }
-
+  //     user.permissions = permissions;
   //     await user.save();
 
   //     res.status(HttpCode.OK).json({
   //       success: true,
-  //       message: `Permission '${action}' for '${entity}' updated successfully`,
-  //       data: user.permissions,
+  //       message: "Permissions updated",
+  //       data: user,
   //     });
   //   }
   // );
+
+  updatePermissions = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      const { entity, action, value } = req.body;
+
+      const allowedEntities = ["event", "member", "user", "album", "financial"];
+      const allowedActions = ["view", "create", "update", "delete"];
+
+      if (!allowedEntities.includes(entity)) {
+        return next(createCustomError("Invalid entity", HttpCode.BAD_REQUEST));
+      }
+
+      if (!allowedActions.includes(action)) {
+        return next(createCustomError("Invalid action", HttpCode.BAD_REQUEST));
+      }
+
+      if (typeof value !== "boolean") {
+        return next(
+          createCustomError("Value must be a boolean", HttpCode.BAD_REQUEST)
+        );
+      }
+
+      const user = await User.findById(id);
+      if (!user) throw createCustomError("User not found", HttpCode.NOT_FOUND);
+
+      const permission = user.permissions.find(
+        (perm: any) => perm.entity === entity
+      );
+
+      if (permission) {
+        permission[action] = value;
+      }
+
+      await user.save();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: `Permission '${action}' for '${entity}' updated successfully`,
+        data: user.permissions,
+      });
+    }
+  );
 }
 
 export default new UserController();

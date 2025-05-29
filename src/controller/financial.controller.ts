@@ -21,8 +21,8 @@ class TransactionController {
         );
       }
       let image;
-      if (req.file?.filename) {
-        image = req.file?.filename;
+      if (req.file?.path) {
+        image = req.file.path.replace(/\\/g, "/");
       }
 
       const transaction = await Transaction.create({
@@ -131,8 +131,8 @@ class TransactionController {
     async (req: Request, res: Response, next: NextFunction) => {
       const transactionId = req.params.id;
       let updateData = req.body;
-      if (req.file?.filename) {
-        updateData.image = req.file?.filename;
+      if (req.file?.path) {
+        updateData.image = req.file.path.replace(/\\/g, "/");
       }
 
       if (updateData.amount) {

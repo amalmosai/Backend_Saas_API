@@ -113,7 +113,7 @@ class AlbumController {
       const albumId = req.params.id;
       let { image, description } = req.body;
 
-      if (!req.file?.filename || !albumId) {
+      if (!req.file?.path || !albumId) {
         return next(
           createCustomError(
             "Image URL and album ID are required",
@@ -122,8 +122,8 @@ class AlbumController {
         );
       }
 
-      if (req.file?.filename) {
-        image = req.file?.filename;
+      if (req.file?.path) {
+        image = req.file.path.replace(/\\/g, "/");
       }
 
       const newImage = await Image.create({ image, description });

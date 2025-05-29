@@ -9,6 +9,9 @@ import {
   superAdminPermissions,
 } from "../models/permission.model";
 
+const DEFAULT_IMAGE_URL =
+  "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
+
 class UserController {
   createUser = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -20,16 +23,22 @@ class UserController {
         phone,
         familyBranch,
         familyRelationship,
-        image,
         role,
       } = req.body;
-      
+
       const emailExists = await User.findOne({ email });
 
       if (emailExists) {
         return next(
           createCustomError("Email already exists", HttpCode.BAD_REQUEST)
         );
+      }
+
+      let image;
+      if (req.file?.filename) {
+        image = req.file?.filename;
+      } else {
+        image = DEFAULT_IMAGE_URL;
       }
 
       let permission;
@@ -130,7 +139,7 @@ class UserController {
 
   getUserAuthuser = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const id = req.body.authUser?.id;
+      const id = req.user?.id;
 
       const user = await User.findById(id).select("-password");
 
@@ -166,7 +175,11 @@ class UserController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
 
-      const updatedUser = await User.findByIdAndUpdate(id, req.body, {
+      let updateData = req.body;
+      if (req.file?.filename) {
+        updateData.image = req.file?.filename;
+      }
+      const updatedUser = await User.findByIdAndUpdate(id, updateData, {
         new: true,
         runValidators: true,
       });
@@ -202,6 +215,49 @@ class UserController {
       });
     }
   );
+
+  // updatePermissions = asyncWrapper(
+  //   async (req: Request, res: Response, next: NextFunction) => {
+  //     const { id } = req.params;
+  //     const { entity, action, value } = req.body;
+
+  //     const allowedEntities = ["event", "member", "user"];
+  //     const allowedActions = ["view", "create", "update", "delete"];
+
+  //     if (!allowedEntities.includes(entity)) {
+  //       return next(createCustomError("Invalid entity", HttpCode.BAD_REQUEST));
+  //     }
+
+  //     if (!allowedActions.includes(action)) {
+  //       return next(createCustomError("Invalid action", HttpCode.BAD_REQUEST));
+  //     }
+
+  //     if (typeof value !== "boolean") {
+  //       return next(
+  //         createCustomError("Value must be a boolean", HttpCode.BAD_REQUEST)
+  //       );
+  //     }
+
+  //     const user = await User.findById(id);
+  //     if (!user) throw createCustomError("User not found", HttpCode.NOT_FOUND);
+
+  //     const permission = user.permissions.find(
+  //       (perm: any) => perm.entity === entity
+  //     );
+
+  //     if (permission) {
+  //       permission[action] = value;
+  //     }
+
+  //     await user.save();
+
+  //     res.status(HttpCode.OK).json({
+  //       success: true,
+  //       message: `Permission '${action}' for '${entity}' updated successfully`,
+  //       data: user.permissions,
+  //     });
+  //   }
+  // );
 }
 
 export default new UserController();

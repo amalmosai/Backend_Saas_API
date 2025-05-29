@@ -34,7 +34,7 @@ router
 
 router
   .route("/:id")
-  .put(authenticateUser, upload.single("image"), UserController.updateUser);
+  .patch(authenticateUser, upload.single("image"), UserController.updateUser);
 
 router
   .route("/authUser")

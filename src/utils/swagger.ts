@@ -1001,7 +1001,7 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
-        put: {
+        patch: {
           security: [
             {
               bearerAuth: [],

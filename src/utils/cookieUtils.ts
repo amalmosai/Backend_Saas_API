@@ -15,7 +15,7 @@ export const setCookie = (
   options: Partial<CookieOptions> = {}
 ) => {
   const defaultOptions = {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: "none" as const,
   };
@@ -28,7 +28,7 @@ export const setCookie = (
 
 export const clearCookie = (res: Response, name: string) => {
   res.clearCookie(name, {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });

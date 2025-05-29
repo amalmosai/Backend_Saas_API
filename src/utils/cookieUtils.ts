@@ -17,7 +17,7 @@ export const setCookie = (
   const defaultOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict" as const,
+    sameSite: "none" as const,
   };
 
   res.cookie(name, value, {
@@ -30,6 +30,6 @@ export const clearCookie = (res: Response, name: string) => {
   res.clearCookie(name, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 };

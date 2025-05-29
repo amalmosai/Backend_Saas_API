@@ -30,14 +30,19 @@ const allowedOrigins =
         "http://localhost:8080",
         undefined,
       ];
-
+const vercelOriginRegex = /^https:\/\/.*\.vercel\.app$/;
 // CORS configuration
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        (process.env.NODE_ENV === "production" &&
+          vercelOriginRegex.test(origin));
+
+      if (isAllowed) {
         callback(null, true);
       } else {
         console.log("Blocked by CORS:", origin);

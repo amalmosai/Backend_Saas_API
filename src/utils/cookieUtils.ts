@@ -6,6 +6,7 @@ interface CookieOptions {
   sameSite: "strict" | "lax" | "none";
   maxAge?: number;
   expires?: Date;
+  path?: string;
 }
 
 export const setCookie = (
@@ -18,6 +19,8 @@ export const setCookie = (
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: "none" as const,
+    maxAge: 90 * 24 * 60 * 60 * 1000,
+    path: "/",
   };
 
   res.cookie(name, value, {
@@ -31,5 +34,6 @@ export const clearCookie = (res: Response, name: string) => {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/",
   });
 };

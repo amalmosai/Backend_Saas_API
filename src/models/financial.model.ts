@@ -42,6 +42,14 @@ const TransactionSchema = new Schema<ITransaction>(
       enum: ["subscriptions", "donations", "investments", "other"],
       required: [true, "The category is required"],
     },
+    status: {
+      type: String,
+      enum: {
+        values: ["pending", "reject", "accept"],
+        message: "{VALUE} is not supported",
+      },
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

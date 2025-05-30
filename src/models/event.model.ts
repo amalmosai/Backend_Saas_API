@@ -16,7 +16,7 @@ const eventSchema = new Schema<IEvent>(
       type: String,
       required: [true, "The description is required"],
     },
-    eventLocation: {
+    location: {
       type: String,
       required: [true, "The event Location is required"],
     },
@@ -27,6 +27,14 @@ const eventSchema = new Schema<IEvent>(
     endDate: {
       type: Date,
       required: [true, "The end Date is required"],
+    },
+    status: {
+      type: String,
+      enum: {
+        values: ["pending", "reject", "accept"],
+        message: "{VALUE} is not supported",
+      },
+      default: "pending",
     },
   },
   { timestamps: true }

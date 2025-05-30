@@ -2110,7 +2110,7 @@ const options: swaggerJsdoc.Options = {
               bearerAuth: [],
             },
           ],
-          summary: "create a new transaction",
+          summary: "Create a new transaction",
           tags: ["Financial"],
           description: "create a new transaction",
           requestBody: {
@@ -2153,7 +2153,12 @@ const options: swaggerJsdoc.Options = {
                     image: {
                       type: "string",
                       format: "binary",
-                      description: "TThe transaction's image",
+                      description: "The transaction's image",
+                    },
+                    status: {
+                      type: "string",
+                      enum: ["pending", "reject", "accept"],
+                      description: "The transaction's status",
                     },
                   },
                   required: ["name", "amount", "type", "date", "category"],
@@ -2502,7 +2507,7 @@ const options: swaggerJsdoc.Options = {
           },
         },
         get: {
-          summary: "Get a transaction by id.",
+          summary: "Get a transaction.",
           tags: ["Financial"],
           security: [
             {
@@ -2667,6 +2672,660 @@ const options: swaggerJsdoc.Options = {
           responses: {
             "200": {
               description: "Transaction updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+
+      /** event route documentation**/
+      "/event/": {
+        post: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          summary: "create a new event",
+          tags: ["Event"],
+          description: "Create a new event",
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    address: {
+                      type: "string",
+                      description: "The event's address",
+                    },
+                    description: {
+                      type: "number",
+                      description: "The event's description",
+                    },
+                    location: {
+                      type: "string",
+                      description: "The event's location",
+                    },
+                    startDate: {
+                      type: "date",
+                      description: "The event's startDate",
+                    },
+                    endDate: {
+                      type: "date",
+                      description: "The event's endDate",
+                    },
+                    status: {
+                      type: "string",
+                      enum: ["pending", "reject", "accept"],
+                      default:"pending",
+                      description: "The event's status",
+                    },
+                  },
+                  required: [
+                    "address",
+                    "description",
+                    "location",
+                    "startDate",
+                    "endDate",
+                  ],
+                },
+              },
+            },
+          },
+          responses: {
+            "201": {
+              description: "Event created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        get: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          summary: "Get all events",
+          tags: ["Event"],
+          description: "Get all events",
+          parameters: [
+            {
+              name: "page",
+              in: "query",
+              required: false,
+              schema: {
+                type: "integer",
+                default: 1,
+                description: "The page number to retrieve",
+              },
+            },
+            {
+              name: "limit",
+              in: "query",
+              required: false,
+              schema: {
+                type: "integer",
+                default: 10,
+                description: "The number of events to retrieve per page",
+              },
+            },
+          ],
+          responses: {
+            "200": {
+              description: "Get all events successfuly",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/event/{id}": {
+        delete: {
+          summary: "Delete an event.",
+          tags: ["Event"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          description: "Delete an event by id",
+          responses: {
+            "200": {
+              description: "Event deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        get: {
+          summary: "Get an event.",
+          tags: ["Event"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          description: "Get an event by id",
+          responses: {
+            "200": {
+              description: "Get an event successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        patch: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          summary: "Update an event",
+          tags: ["Event"],
+          description: "Update an event by id ",
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    address: {
+                      type: "string",
+                      description: "The event's address",
+                    },
+                    description: {
+                      type: "number",
+                      description: "The event's description",
+                    },
+                    location: {
+                      type: "string",
+                      description: "The event's location",
+                    },
+                    startDate: {
+                      type: "date",
+                      description: "The event's startDate",
+                    },
+                    endDate: {
+                      type: "date",
+                      description: "The event's endDate",
+                    },
+                    status: {
+                      type: "string",
+                      enum: ["pending", "reject", "accept"],
+                      description: "The event's status",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Event updated successfully",
               content: {
                 "application/json": {
                   schema: {

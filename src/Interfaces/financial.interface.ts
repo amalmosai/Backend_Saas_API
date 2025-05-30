@@ -11,4 +11,5 @@ export interface ITransaction {
   updatedAt: Date;
   createdBy: Schema.Types.ObjectId;
   category: string;
+  status?: string;
 }

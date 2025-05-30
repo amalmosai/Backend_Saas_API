@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Jwt, { Secret } from "jsonwebtoken";
 import User from "../models/user.model";
-const { createCustomError, HttpCode } = require("../errors/customError");
-
+import { createCustomError, HttpCode } from "../errors/customError";
 declare global {
   namespace Express {
     interface Request {

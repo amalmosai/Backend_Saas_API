@@ -4,7 +4,8 @@ export default interface IEvent {
   userId: Types.ObjectId;
   address: string;
   description: string;
-  eventLocation: string;
+  location: string;
   startDate: Date;
   endDate: Date;
+  status?: string;
 }

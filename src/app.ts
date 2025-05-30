@@ -2,7 +2,6 @@ import express, { Express } from "express";
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
-import path from "path";
 const app: Express = express();
 
 import cookieParser from "cookie-parser";
@@ -15,6 +14,7 @@ import permissionRoute from "./Routes/permission.route";
 import memberRoute from "./Routes/member.route";
 import albumRoute from "./Routes/album.route";
 import financialRoute from "./Routes/financial.route";
+import eventRoute from "./Routes/event.route";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
@@ -32,6 +32,7 @@ const allowedOrigins =
         undefined,
       ];
 const vercelOriginRegex = /^https:\/\/.*\.vercel\.app$/;
+
 // CORS configuration
 app.use(
   cors({
@@ -72,9 +73,6 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-// Static files
-app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
-
 // API Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -85,6 +83,7 @@ app.use("/api/v1/permission", permissionRoute);
 app.use("/api/v1/member", memberRoute);
 app.use("/api/v1/album", albumRoute);
 app.use("/api/v1/financial", financialRoute);
+app.use("/api/v1/event", eventRoute);
 
 // Health check endpoint
 app.get("/", (req, res) => {

@@ -20,11 +20,13 @@ export const sendWelcomeEmail = async (user: IUser) => {
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: user.email,
-      subject: "Welcome to Our Platform!",
+      subject: "Welcome to Our Platform – Account Under Review",
       html: `
         <h1>Welcome ${user.fname} ${user.lname}!</h1>
         <p>Thank you for registering with us.</p>
-        <p>Your account has been successfully created.</p>
+        <p>Your account has been received and is currently under review.</p>
+        <p>You will receive an email once your account is approved and activated.</p>
+        <p>If you have any questions in the meantime, feel free to contact our support team.</p>
       `,
     };
     await transporter.sendMail(mailOptions);

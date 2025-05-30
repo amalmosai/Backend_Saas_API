@@ -104,6 +104,15 @@ class AuthController {
         );
       }
 
+      if (authUser.status !== "accept") {
+        return next(
+          createCustomError(
+            "Account is still under review. Please wait for approval.",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
+
       const isPasswordCorrect = await comparePasswords(
         password,
         authUser.password

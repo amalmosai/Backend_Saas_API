@@ -23,6 +23,14 @@ router
   );
 
 router
+  .route("/")
+  .delete(
+    authenticateUser,
+    authorizePermission("financial", "delete"),
+    TransactionController.deleteAllTransactions
+  );
+
+router
   .route("/:id")
   .get(authenticateUser, TransactionController.getTransactionById);
 
@@ -31,7 +39,7 @@ router
   .delete(
     authenticateUser,
     authorizePermission("financial", "delete"),
-    TransactionController.deleteTransaction
+    TransactionController.deleteTransactionById
   );
 
 router
@@ -40,7 +48,7 @@ router
     authenticateUser,
     authorizePermission("financial", "update"),
     upload.single("image"),
-    TransactionController.updateTransaction
+    TransactionController.updateTransactionById
   );
 
 export default router;

@@ -99,7 +99,7 @@ class TransactionController {
     }
   );
 
-  deleteTransaction = asyncWrapper(
+  deleteTransactionById = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const transactionId = req.params.id;
 
@@ -127,7 +127,7 @@ class TransactionController {
     }
   );
 
-  updateTransaction = asyncWrapper(
+  updateTransactionById = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const transactionId = req.params.id;
       let updateData = req.body;
@@ -173,6 +173,29 @@ class TransactionController {
         success: true,
         data: updatedTransaction,
         message: "Transaction updated successfully",
+      });
+    }
+  );
+
+  deleteAllTransactions = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { confirm } = req.body;
+
+      if (confirm !== "true") {
+        return next(
+          createCustomError(
+            "Confirmation required. Send confirm=true in request body to delete all transactions",
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      const result = await Transaction.deleteMany();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: { deletedCount: result.deletedCount },
+        message: `All transactions deleted successfully`,
       });
     }
   );

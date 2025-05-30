@@ -346,8 +346,8 @@ const options: swaggerJsdoc.Options = {
               bearerAuth: [],
             },
           ],
-          summary: "check permission",
-          tags: ["permission"],
+          summary: "Check permission",
+          tags: ["Permission"],
           description: "check user permission for actions",
           requestBody: {
             content: {
@@ -486,9 +486,9 @@ const options: swaggerJsdoc.Options = {
               bearerAuth: [],
             },
           ],
-          summary: "create a new user",
-          tags: ["user"],
-          description: "create a new user",
+          summary: "Create a new user",
+          tags: ["User"],
+          description: "Create a new user",
           requestBody: {
             content: {
               "multipart/form-data": {
@@ -676,7 +676,7 @@ const options: swaggerJsdoc.Options = {
             },
           ],
           summary: "Get all users",
-          tags: ["user"],
+          tags: ["User"],
           description: "Get all users",
           parameters: [
             {
@@ -809,7 +809,7 @@ const options: swaggerJsdoc.Options = {
       "/user/{id}": {
         delete: {
           summary: "Delete a user.",
-          tags: ["user"],
+          tags: ["User"],
           security: [
             {
               bearerAuth: [],
@@ -906,7 +906,7 @@ const options: swaggerJsdoc.Options = {
         },
         get: {
           summary: "Get a user by id.",
-          tags: ["user"],
+          tags: ["User"],
           security: [
             {
               bearerAuth: [],
@@ -1017,9 +1017,9 @@ const options: swaggerJsdoc.Options = {
               },
             },
           ],
-          summary: "update user",
-          tags: ["user"],
-          description: "update user by id",
+          summary: "Update user",
+          tags: ["User"],
+          description: "Update user by id",
           requestBody: {
             content: {
               "multipart/form-data": {
@@ -1213,7 +1213,7 @@ const options: swaggerJsdoc.Options = {
       "/user/authUser": {
         post: {
           summary: "Get an auth user.",
-          tags: ["user"],
+          tags: ["User"],
           security: [
             {
               bearerAuth: [],
@@ -1329,7 +1329,7 @@ const options: swaggerJsdoc.Options = {
       "/user/{id}/permissions": {
         patch: {
           summary: "Update permissions for user.",
-          tags: ["user"],
+          tags: ["User"],
           security: [
             {
               bearerAuth: [],
@@ -1495,9 +1495,9 @@ const options: swaggerJsdoc.Options = {
               bearerAuth: [],
             },
           ],
-          summary: "create a new album",
+          summary: "Create a new album",
           tags: ["Album"],
-          description: "create a new album",
+          description: "Create a new album",
           requestBody: {
             content: {
               "application/json": {
@@ -2112,7 +2112,7 @@ const options: swaggerJsdoc.Options = {
           ],
           summary: "Create a new transaction",
           tags: ["Financial"],
-          description: "create a new transaction",
+          description: "Create a new transaction",
           requestBody: {
             content: {
               "multipart/form-data": {
@@ -2399,6 +2399,108 @@ const options: swaggerJsdoc.Options = {
                       statusCode: {
                         type: "number",
                         default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        delete: {
+          summary: "Delete  all transactions",
+          tags: ["Financial"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          description: "Delete all transactions",
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    confirm: {
+                      type: "boolean",
+                    },
+                  },
+                  required: ["confirm"],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "ALll transactions deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
                       },
                     },
                   },
@@ -2784,7 +2886,7 @@ const options: swaggerJsdoc.Options = {
               bearerAuth: [],
             },
           ],
-          summary: "create a new event",
+          summary: "Create a new event",
           tags: ["Event"],
           description: "Create a new event",
           requestBody: {
@@ -2816,7 +2918,7 @@ const options: swaggerJsdoc.Options = {
                     status: {
                       type: "string",
                       enum: ["pending", "reject", "accept"],
-                      default:"pending",
+                      default: "pending",
                       description: "The event's status",
                     },
                   },

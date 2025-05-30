@@ -81,7 +81,7 @@ class AuthController {
       res.status(HttpCode.CREATED).json({
         sucess: true,
         data: newUser,
-        message: "user sucessfully added",
+        message: "User register sucessfully",
       });
     }
   );

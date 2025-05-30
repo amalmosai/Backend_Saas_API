@@ -8,6 +8,7 @@ import {
   defaultPermissions,
   superAdminPermissions,
 } from "../models/permission.model";
+import { sendAccountStatusEmail } from "../services/email.service";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -176,16 +177,28 @@ class UserController {
       const { id } = req.params;
 
       let updateData = req.body;
+
       if (req.file?.path) {
         updateData.image = req.file.path.replace(/\\/g, "/");
       }
+      const originalUser = await User.findById(id);
+
+      if (!originalUser) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
       const updatedUser = await User.findByIdAndUpdate(id, updateData, {
         new: true,
         runValidators: true,
       });
 
-      if (!updatedUser) {
-        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      if (updatedUser?.status !== originalUser.status) {
+        if (
+          updatedUser?.status === "accept" ||
+          updatedUser?.status === "reject"
+        ) {
+          sendAccountStatusEmail(updatedUser);
+        }
       }
 
       res.status(HttpCode.OK).json({

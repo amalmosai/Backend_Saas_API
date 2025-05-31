@@ -85,7 +85,7 @@ const userSchema = new Schema<IUser>(
       default: defaultPermissions,
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const User = model<IUser>("users", userSchema);

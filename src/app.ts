@@ -15,6 +15,7 @@ import memberRoute from "./Routes/member.route";
 import albumRoute from "./Routes/album.route";
 import financialRoute from "./Routes/financial.route";
 import eventRoute from "./Routes/event.route";
+import advertisementRoute from "./Routes/advertisement.route";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
@@ -84,6 +85,7 @@ app.use("/api/v1/member", memberRoute);
 app.use("/api/v1/album", albumRoute);
 app.use("/api/v1/financial", financialRoute);
 app.use("/api/v1/event", eventRoute);
+app.use("/api/v1/advertisement", advertisementRoute);
 
 // Health check endpoint
 app.get("/", (req, res) => {

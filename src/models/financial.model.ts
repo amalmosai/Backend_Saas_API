@@ -51,7 +51,7 @@ const TransactionSchema = new Schema<ITransaction>(
       default: "pending",
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const Transaction = model<ITransaction>("transaction", TransactionSchema);

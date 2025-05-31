@@ -11,7 +11,7 @@ const tenantSchema = new Schema<ITenant>(
       default: "free",
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const Tenant = model<ITenant>("tenant", tenantSchema);

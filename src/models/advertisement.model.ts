@@ -27,7 +27,7 @@ const advertisementSchema = new Schema<IAdvertisement>(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const Advertisement = model<IAdvertisement>(

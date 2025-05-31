@@ -32,7 +32,7 @@ const memberSchema = new Schema<IMember>(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const Member = model<IMember>("members", memberSchema);

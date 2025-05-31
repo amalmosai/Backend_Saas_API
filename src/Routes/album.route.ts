@@ -31,13 +31,18 @@ router
     AlbumController.deleteAlbum
   );
 
+router.route("/:id").put(
+  authenticateUser,
+  // authorizePermission("album", "update"),
+  upload.single("image"),
+  AlbumController.uploadImageAndAddToAlbum
+);
+
 router
   .route("/:id")
-  .put(
+  .patch(
     authenticateUser,
     authorizePermission("album", "update"),
-    upload.single("image"),
-    AlbumController.uploadImageAndAddToAlbum
+    AlbumController.updateAlbumById
   );
-
 export default router;

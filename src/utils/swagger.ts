@@ -1971,7 +1971,7 @@ const options: swaggerJsdoc.Options = {
               },
             },
           ],
-          summary: "Update an album",
+          summary: "Update an album by adding image",
           tags: ["Album"],
           description: "Update an album by id to add an image",
           requestBody: {
@@ -1991,6 +1991,149 @@ const options: swaggerJsdoc.Options = {
                     },
                   },
                   required: ["image"],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Album updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: "object",
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        patch: {
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+            },
+          ],
+          summary: "Update an album",
+          tags: ["Album"],
+          description: "Update an album",
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The image's name",
+                    },
+                    description: {
+                      type: "strig",
+                      description: "The image's description",
+                    },
+                  },
                 },
               },
             },

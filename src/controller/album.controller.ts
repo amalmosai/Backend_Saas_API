@@ -92,10 +92,7 @@ class AlbumController {
         );
       }
 
-      const album = await Album.findById(albumId).populate(
-        "createdBy",
-        "-password"
-      );
+      const album = await Album.findById(albumId).populate("images");
 
       if (!album) {
         return next(createCustomError("Album not found", HttpCode.NOT_FOUND));
@@ -104,6 +101,7 @@ class AlbumController {
       res.status(HttpCode.OK).json({
         success: true,
         data: album,
+        message: "Fetched album successfully",
       });
     }
   );
@@ -143,6 +141,34 @@ class AlbumController {
         success: true,
         message: "Image uploaded and added to album",
         data: updatedAlbum,
+      });
+    }
+  );
+
+  updateAlbumById = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const albumId = req.params.id;
+
+      if (!mongoose.Types.ObjectId.isValid(albumId)) {
+        return next(
+          createCustomError("Invalid album ID", HttpCode.BAD_REQUEST)
+        );
+      }
+      const album = await Album.findById(albumId);
+
+      if (!album) {
+        return next(createCustomError("Album not found", HttpCode.NOT_FOUND));
+      }
+
+      const updatedAlbum = await Album.findByIdAndUpdate(albumId, req.body, {
+        new: true,
+        runValidators: true,
+      }).populate("images");
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: updatedAlbum,
+        message: "Album updated successfully",
       });
     }
   );

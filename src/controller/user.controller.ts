@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../middlewares/asynHandler";
 import User from "../models/user.model";
 import { HttpCode, createCustomError } from "../errors/customError";
-import { hashPassword } from "../utils/passwordUtils";
+import { hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
 import {
   defaultPermissions,

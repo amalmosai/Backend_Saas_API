@@ -133,34 +133,10 @@ class EventController {
       const eventId = req.params.id;
       let updateData = req.body;
 
-      if (updateData.startDate && updateData.endDate) {
-        if (new Date(updateData.startDate) >= new Date(updateData.endDate)) {
-          return next(
-            createCustomError(
-              "End date must be after start date",
-              HttpCode.BAD_REQUEST
-            )
-          );
-        }
-      } else if (updateData.startDate || updateData.endDate) {
-        const existingEvent = await Event.findById(eventId);
-        if (existingEvent) {
-          const startDate = updateData.startDate
-            ? new Date(updateData.startDate)
-            : existingEvent.startDate;
-          const endDate = updateData.endDate
-            ? new Date(updateData.endDate)
-            : existingEvent.endDate;
+      const existingEvent = await Event.findById(eventId);
 
-          if (startDate >= endDate) {
-            return next(
-              createCustomError(
-                "End date must be after start date",
-                HttpCode.BAD_REQUEST
-              )
-            );
-          }
-        }
+      if (!existingEvent) {
+        return next(createCustomError("Event not found", HttpCode.NOT_FOUND));
       }
 
       const cleanObject = (obj: any) => {
@@ -171,19 +147,25 @@ class EventController {
           )
         );
       };
+
       updateData = cleanObject(updateData);
 
-      if (!mongoose.Types.ObjectId.isValid(eventId)) {
-        return next(
-          createCustomError("Invalid event ID", HttpCode.BAD_REQUEST)
-        );
+      let startDate = updateData.startDate
+        ? validateDate(updateData.startDate, "startDate")
+        : existingEvent.startDate;
+
+      validateFutureDate(startDate, "startDate");
+
+      let endDate = updateData.endDate
+        ? validateDate(updateData.endDate, "endDate")
+        : existingEvent.endDate;
+
+      if (updateData.startDate || updateData.endDate) {
+        validateDateRange(startDate, endDate);
       }
 
-      const event = await Event.findById(eventId);
-
-      if (!event) {
-        return next(createCustomError("Event not found", HttpCode.NOT_FOUND));
-      }
+      if (updateData.startDate) updateData.startDate = startDate;
+      if (updateData.endDate) updateData.endDate = endDate;
 
       const updatedEvent = await Event.findByIdAndUpdate(
         { _id: eventId },

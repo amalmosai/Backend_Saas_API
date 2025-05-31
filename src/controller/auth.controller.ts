@@ -5,8 +5,8 @@ import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import { generateToken } from "../utils/generateToken";
 import { sendWelcomeEmail } from "../services/email.service";
-import { clearCookie, setCookie } from "../utils/cookieUtils";
-import { comparePasswords, hashPassword } from "../utils/passwordUtils";
+import { clearCookie, setCookie } from "../utils/cookie";
+import { comparePasswords, hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
 
 const DEFAULT_IMAGE_URL =

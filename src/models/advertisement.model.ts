@@ -8,9 +8,9 @@ const advertisementSchema = new Schema<IAdvertisement>(
       ref: "users",
       required: true,
     },
-    address: {
+    title: {
       type: String,
-      required: [true, "The address is required"],
+      required: [true, "The title is required"],
     },
     type: {
       type: String,

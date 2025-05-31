@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 export default interface IAdvertisement {
   userId: Types.ObjectId;
-  address: string;
+  title: string;
   type: string;
   content: string;
   image?: string;

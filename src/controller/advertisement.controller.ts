@@ -7,14 +7,14 @@ import mongoose from "mongoose";
 class AdvertisementController {
   createAdvertisement = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { address, type, content } = req.body;
+      const { title, type, content } = req.body;
       const userId = req.user?.id;
 
       if (!userId) {
         return next(createCustomError("Unauthorized", HttpCode.UNAUTHORIZED));
       }
 
-      if (!address || !type || !content) {
+      if (!title || !type || !content) {
         return next(
           createCustomError("Missing required fields", HttpCode.BAD_REQUEST)
         );
@@ -27,7 +27,7 @@ class AdvertisementController {
 
       const advertisement = await Advertisement.create({
         userId,
-        address,
+        title,
         type,
         content,
         image,

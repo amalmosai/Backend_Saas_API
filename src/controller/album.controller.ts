@@ -44,6 +44,10 @@ class AlbumController {
 
       const albums = await Album.find()
         .populate("images")
+        .populate({
+          path: "createdBy",
+          select: "-password -permissions -_id ",
+        })
         .skip(skip)
         .limit(limit);
 
@@ -92,7 +96,10 @@ class AlbumController {
         );
       }
 
-      const album = await Album.findById(albumId).populate("images");
+      const album = await Album.findById(albumId).populate("images").populate({
+        path: "createdBy",
+        select: "-password -permissions -_id ",
+      });
 
       if (!album) {
         return next(createCustomError("Album not found", HttpCode.NOT_FOUND));
@@ -131,7 +138,12 @@ class AlbumController {
         albumId,
         { $push: { images: newImage._id } },
         { new: true }
-      ).populate("images");
+      )
+        .populate("images")
+        .populate({
+          path: "createdBy",
+          select: "-password -permissions -_id ",
+        });
 
       if (!updatedAlbum) {
         return next(createCustomError("Album not found", HttpCode.NOT_FOUND));
@@ -163,7 +175,12 @@ class AlbumController {
       const updatedAlbum = await Album.findByIdAndUpdate(albumId, req.body, {
         new: true,
         runValidators: true,
-      }).populate("images");
+      })
+        .populate("images")
+        .populate({
+          path: "createdBy",
+          select: "-password -permissions -_id ",
+        });
 
       res.status(HttpCode.OK).json({
         success: true,

@@ -21,7 +21,7 @@ const albumSchema = new Schema<IAlbum>(
       ref: "users",
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 export default mongoose.model<IAlbum>("album", albumSchema);

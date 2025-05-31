@@ -26,7 +26,6 @@ const eventSchema = new Schema<IEvent>(
     },
     endDate: {
       type: Date,
-      required: [true, "The end Date is required"],
     },
     status: {
       type: String,
@@ -37,7 +36,7 @@ const eventSchema = new Schema<IEvent>(
       default: "pending",
     },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const Event = model<IEvent>("events", eventSchema);

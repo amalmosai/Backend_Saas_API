@@ -3,6 +3,11 @@ import Event from "../models/event.model";
 import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import mongoose from "mongoose";
+import {
+  validateDate,
+  validateDateRange,
+  validateFutureDate,
+} from "../utils/dateValidator";
 
 class EventController {
   createEvent = asyncWrapper(
@@ -15,28 +20,25 @@ class EventController {
         return next(createCustomError("Unauthorized", HttpCode.UNAUTHORIZED));
       }
 
-      if (!address || !description || !location || !startDate || !endDate) {
+      if (!address || !description || !location || !startDate) {
         return next(
           createCustomError("Missing required fields", HttpCode.BAD_REQUEST)
         );
       }
 
-      if (new Date(startDate) >= new Date(endDate)) {
-        return next(
-          createCustomError(
-            "End date must be after start date",
-            HttpCode.BAD_REQUEST
-          )
-        );
-      }
+      const startDateObj = validateDate(startDate, "startDate");
+      validateFutureDate(startDateObj, "startDate");
+
+      const endDateObj = endDate ? validateDate(endDate, "endDate") : null;
+      validateDateRange(startDateObj, endDateObj);
 
       const event = await Event.create({
         userId,
         address,
         description,
         location,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: startDateObj,
+        endDate: endDateObj,
       });
 
       res.status(HttpCode.CREATED).json({
@@ -54,7 +56,7 @@ class EventController {
 
     const totalEvents = await Event.countDocuments();
     const events = await Event.find()
-      .populate("userId", "-password")
+      .populate("userId", "-password -permissions -_id ")
       .skip(skip)
       .limit(limit);
 
@@ -85,7 +87,7 @@ class EventController {
 
       const event = await Event.findById(eventId).populate(
         "userId",
-        "-password"
+        "-password -permissions -_id "
       );
 
       if (!event) {

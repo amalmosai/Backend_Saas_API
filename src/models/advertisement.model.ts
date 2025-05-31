@@ -26,6 +26,14 @@ const advertisementSchema = new Schema<IAdvertisement>(
     image: {
       type: String,
     },
+    status: {
+      type: String,
+      enum: {
+        values: ["pending", "reject", "accept"],
+        message: "{VALUE} is not supported",
+      },
+      default: "pending",
+    },
   },
   { timestamps: true, versionKey: false }
 );

@@ -5,4 +5,5 @@ export default interface IAdvertisement {
   type: string;
   content: string;
   image?: string;
+  status?: string;
 }

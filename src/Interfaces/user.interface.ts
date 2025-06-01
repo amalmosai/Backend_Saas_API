@@ -8,7 +8,7 @@ export default interface IUser {
   password: string;
   phone: number;
   image?: string;
-  role?: string;
+  role?: string[];
   familyBranch: string;
   familyRelationship: string;
   status?: string;
@@ -16,4 +16,12 @@ export default interface IUser {
   birthday?: Date;
   personalProfile?: string;
   permissions: any;
+}
+
+export interface IUserDocument extends IUser, Document {
+  addRole(role: string): boolean;
+  removeRole(role: string): boolean;
+  hasRole(role: string): boolean;
+  hasAnyRole(roles: string[]): boolean;
+  getRoles(): string[];
 }

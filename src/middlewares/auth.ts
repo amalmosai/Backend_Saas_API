@@ -44,11 +44,15 @@ export const authenticateUser = async (
   }
 };
 
-export const authorizeRoles = (...roles: string[]) => {
+export const authorizeRoles = (...allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!roles.includes(req.user.role)) {
-      console.log(req.user.role);
-      console.log(roles);
+    const userRoles = req.user?.role;
+
+    const hasAccess = userRoles.some((role: string) =>
+      allowedRoles.includes(role)
+    );
+    console.log(userRoles);
+    if (!hasAccess) {
       return next(
         createCustomError(
           `Unauthorized to access this route`,

@@ -1,8 +1,8 @@
 import { Schema, model, Types } from "mongoose";
-import IUser from "../Interfaces/user.interface";
+import IUser, { IUserDocument } from "../Interfaces/user.interface";
 import { defaultPermissions, permissionSchema } from "./permission.model";
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUserDocument>(
   {
     tenantId: {
       type: Schema.Types.ObjectId,
@@ -40,11 +40,13 @@ const userSchema = new Schema<IUser>(
       default: "avatar.jfif",
     },
     role: {
-      type: String,
-      default: "user",
-      enum: {
-        values: ["super_admin", "admin", "moderator", "user"],
-        message: "{VALUE} is not supported",
+      type: [String],
+      default: ["مستخدم"],
+      validate: {
+        validator: function (roles: string[]) {
+          return roles.length > 0;
+        },
+        message: "User must have at least one role",
       },
     },
     familyBranch: {
@@ -88,6 +90,40 @@ const userSchema = new Schema<IUser>(
   { timestamps: true, versionKey: false }
 );
 
-const User = model<IUser>("users", userSchema);
+userSchema.methods = {
+  addRole: function (role: string): boolean {
+    if (!this.role.includes(role)) {
+      this.role.push(role);
+      return true;
+    }
+    return false;
+  },
+
+  removeRole: function (role: string): boolean {
+    const initialLength = this.role.length;
+    this.role = this.role.filter((r: string) => r !== role);
+
+    if (this.role.length === 0) {
+      this.role = ["user"];
+      return false;
+    }
+
+    return this.role.length < initialLength;
+  },
+
+  hasRole: function (role: string): boolean {
+    return this.role.includes(role);
+  },
+
+  hasAnyRole: function (roles: string[]): boolean {
+    return this.role.some((userRole: string) => roles.includes(userRole));
+  },
+
+  getRoles: function (): string[] {
+    return this.role;
+  },
+};
+
+const User = model<IUserDocument>("users", userSchema);
 
 export default User;

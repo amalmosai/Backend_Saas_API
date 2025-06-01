@@ -44,7 +44,7 @@ class UserController {
 
       let permission;
       let status;
-      if (role === "super_admin") {
+      if (role === "مدير النظام العام") {
         permission = superAdminPermissions;
         status = "accept";
       } else {
@@ -65,7 +65,7 @@ class UserController {
 
       const hashedPwd = await hashPassword(password);
 
-      const user = await User.create({
+      const user = new User({
         tenantId: tenant._id,
         fname,
         lname,
@@ -76,9 +76,15 @@ class UserController {
         familyRelationship,
         image,
         permissions: permission,
-        role,
         status,
       });
+
+      if (Array.isArray(role)) {
+        for (const r of role) user.addRole(r);
+      } else if (typeof role === "string") {
+        user.addRole(role);
+      }
+      await user.save();
 
       res.status(HttpCode.CREATED).json({
         success: true,
@@ -160,9 +166,23 @@ class UserController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
 
-      const deletedUser = await User.findByIdAndDelete(id);
-      if (!deletedUser)
+      const userToDelete = await User.findById(id);
+      if (!userToDelete) {
         return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      const isSuperAdmin = userToDelete?.role?.includes("مدير النظام العام");
+
+      if (isSuperAdmin) {
+        return next(
+          createCustomError(
+            "Super Admin accounts cannot be deleted.",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
+
+      await userToDelete.deleteOne();
 
       res.status(HttpCode.OK).json({
         success: true,
@@ -176,6 +196,8 @@ class UserController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
 
+      const loggedInUserId = req.user?.id;
+
       let updateData = req.body;
 
       if (req.file?.path) {
@@ -185,6 +207,29 @@ class UserController {
 
       if (!originalUser) {
         return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      if (
+        Array.isArray(originalUser?.role) &&
+        originalUser.role.includes("مدير النظام العام") &&
+        loggedInUserId !== originalUser?._id.toString()
+      ) {
+        return next(
+          createCustomError(
+            "You are not allowed to update this account",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
+
+      if (req.body.role) {
+        const { role } = req.body;
+        const currentRoles = originalUser.role || [];
+        if (Array.isArray(role)) {
+          updateData.role = [...new Set([...currentRoles, ...role])];
+        } else if (typeof role === "string") {
+          updateData.role = [...new Set([...currentRoles, role])];
+        }
       }
 
       const updatedUser = await User.findByIdAndUpdate(id, updateData, {

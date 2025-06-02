@@ -20,8 +20,27 @@ const DEFAULT_IMAGE_URL =
 class UserController {
   createUser = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { email, password, phone, familyBranch, familyRelationship, role } =
-        req.body;
+      const familyName = "Elsaqar";
+
+      let tenant = await Tenant.findOne({ familyName });
+      if (!tenant) {
+        tenant = new Tenant({
+          familyName,
+          slug: familyName.toLowerCase().replace(/\s+/g, "-"),
+        });
+        await tenant.save();
+      }
+
+      let {
+        email,
+        password,
+        phone,
+        familyBranch,
+        familyRelationship,
+        role,
+        status,
+        address,
+      } = req.body;
 
       const emailExists = await User.findOne({ email });
 
@@ -32,7 +51,6 @@ class UserController {
       }
 
       let permission;
-      let status;
       switch (role) {
         case "مدير النظام":
           permission = superAdminPermissions;
@@ -52,18 +70,7 @@ class UserController {
           break;
         default:
           permission = defaultPermissions;
-          status = "قيد الانتظار";
-      }
-
-      const familyName = "Elsaqar";
-
-      let tenant = await Tenant.findOne({ familyName });
-      if (!tenant) {
-        tenant = new Tenant({
-          familyName,
-          slug: familyName.toLowerCase().replace(/\s+/g, "-"),
-        });
-        await tenant.save();
+          status = status ? status : "قيد الانتظار";
       }
 
       const hashedPwd = await hashPassword(password);
@@ -77,6 +84,7 @@ class UserController {
         familyRelationship,
         permissions: permission,
         status,
+        address,
       });
 
       if (Array.isArray(role)) {

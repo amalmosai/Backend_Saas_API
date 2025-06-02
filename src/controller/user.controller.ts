@@ -269,56 +269,58 @@ class UserController {
     }
   );
 
-  // updatePermissions = asyncWrapper(
-  //   async (req: Request, res: Response, next: NextFunction) => {
-  //     const { id } = req.params;
-  //     let { permissions } = req.body;
-  //     console.log(permissions);
-
-  //     const user = await User.findById(id);
-  //     if (!user) throw createCustomError("User not found", HttpCode.NOT_FOUND);
-
-  //     user.permissions = permissions;
-  //     await user.save();
-
-  //     res.status(HttpCode.OK).json({
-  //       success: true,
-  //       message: "Permissions updated",
-  //       data: user,
-  //     });
-  //   }
-  // );
-
   updatePermissions = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
-      const { entity, action, value } = req.body;
+      const { entity, ...actions } = req.body;
 
-      const allowedEntities = ["event", "member", "user", "album", "financial"];
+      const allowedEntities = [
+        "مناسبه",
+        "عضو",
+        "مستخدم",
+        "معرض الصور",
+        "ماليه",
+        "اعلان",
+      ];
+
       const allowedActions = ["view", "create", "update", "delete"];
 
       if (!allowedEntities.includes(entity)) {
         return next(createCustomError("Invalid entity", HttpCode.BAD_REQUEST));
       }
 
-      if (!allowedActions.includes(action)) {
-        return next(createCustomError("Invalid action", HttpCode.BAD_REQUEST));
-      }
-
-      if (typeof value !== "boolean") {
-        return next(
-          createCustomError("Value must be a boolean", HttpCode.BAD_REQUEST)
-        );
+      for (const [action, value] of Object.entries(actions)) {
+        if (!allowedActions.includes(action)) {
+          return next(
+            createCustomError(`Invalid action: ${action}`, HttpCode.BAD_REQUEST)
+          );
+        }
+        if (typeof value !== "boolean") {
+          return next(
+            createCustomError(
+              `Value for '${action}' must be a boolean`,
+              HttpCode.BAD_REQUEST
+            )
+          );
+        }
       }
 
       const user = await User.findById(id);
-      if (!user) throw createCustomError("User not found", HttpCode.NOT_FOUND);
 
-      const permission = user.permissions.find(
+      if (!user) {
+        throw createCustomError("User not found", HttpCode.NOT_FOUND);
+      }
+
+      let permission = user.permissions.find(
         (perm: any) => perm.entity === entity
       );
 
-      if (permission) {
+      if (!permission) {
+        permission = { entity };
+        user.permissions.push(permission);
+      }
+
+      for (const [action, value] of Object.entries(actions)) {
         permission[action] = value;
       }
 
@@ -326,7 +328,7 @@ class UserController {
 
       res.status(HttpCode.OK).json({
         success: true,
-        message: `Permission '${action}' for '${entity}' updated successfully`,
+        message: `Permission for '${entity}' updated successfully`,
         data: user.permissions,
       });
     }

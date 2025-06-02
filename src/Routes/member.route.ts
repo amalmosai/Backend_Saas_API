@@ -1,6 +1,7 @@
 import express from "express";
 import MemberController from "../controller/member.controller";
 import { authenticateUser, authorizePermission } from "../middlewares/auth";
+import { upload } from "../middlewares/uploadImage";
 
 const router = express.Router();
 
@@ -9,6 +10,7 @@ router
   .post(
     authenticateUser,
     authorizePermission("member", "create"),
+    upload.single("image"),
     MemberController.createMember
   );
 
@@ -32,9 +34,10 @@ router
 
 router
   .route("/:id")
-  .put(
+  .patch(
     authenticateUser,
     authorizePermission("member", "update"),
+    upload.single("image"),
     MemberController.updateMember
   );
 

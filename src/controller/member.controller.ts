@@ -26,6 +26,26 @@ class MemberController {
     }
   );
 
+  updateMember = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+
+      const updatedMember = await Member.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true,
+      }).populate("userId");
+
+      if (!updatedMember) {
+        return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
+      }
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: updatedMember,
+        message: "Member updated successfully",
+      });
+    }
+  );
+
   getAllMembers = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const page = parseInt(req.query.page as string) || 1;
@@ -66,26 +86,6 @@ class MemberController {
         success: true,
         data: member,
         message: "Member retrieved successfully",
-      });
-    }
-  );
-
-  updateMember = asyncWrapper(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { id } = req.params;
-
-      const updatedMember = await Member.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true,
-      }).populate("userId");
-
-      if (!updatedMember) {
-        return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
-      }
-      res.status(HttpCode.OK).json({
-        success: true,
-        data: updatedMember,
-        message: "Member updated successfully",
       });
     }
   );

@@ -9,12 +9,6 @@ const userSchema = new Schema<IUserDocument>(
       ref: "tenant",
       required: true,
     },
-    fname: {
-      type: String,
-    },
-    lname: {
-      type: String,
-    },
     email: {
       type: String,
       required: [true, "Email address is required"],
@@ -52,34 +46,34 @@ const userSchema = new Schema<IUserDocument>(
     familyBranch: {
       type: String,
       enum: {
-        values: ["branch_1", "branch_2", "branch_3", "branch_4", "branch_5"],
-        message: "{VALUE} is not supported",
+        values: [
+          "الفرع الخامس",
+          "الفرع الرابع",
+          "الفرع الثالث",
+          "الفرع الثاني",
+          "الفرع الاول",
+        ],
+        message: "{VALUE} غير مدعوم",
       },
       required: [true, "Family Branch is required"],
     },
     familyRelationship: {
       type: String,
       enum: {
-        values: ["son", "daughter", "wife", "husband", "grandchild", "other"],
-        message: "{VALUE} is not supported",
+        values: ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "أخرى"],
+        message: "{VALUE} غير مدعوم",
       },
       required: [true, "Family Relationship is required"],
     },
     status: {
       type: String,
       enum: {
-        values: ["pending", "reject", "accept"],
-        message: "{VALUE} is not supported",
+        values: ["قيد الانتظار", "مرفوض", "مقبول"],
+        message: "{VALUE} غير مدعوم",
       },
-      default: "pending",
+      default: "قيد الانتظار",
     },
     address: {
-      type: String,
-    },
-    birthday: {
-      type: Date,
-    },
-    personalProfile: {
       type: String,
     },
     permissions: {

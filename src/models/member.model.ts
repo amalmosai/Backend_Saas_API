@@ -46,11 +46,15 @@ const memberSchema = new Schema<IMember>(
       type: Schema.Types.ObjectId,
       ref: "members",
     },
-    husband: { type: Schema.Types.ObjectId, ref: "members" },
+    husband: { type: Schema.Types.ObjectId, ref: "members", default: null },
     wives: [{ type: Schema.Types.ObjectId, ref: "members" }],
     isUser: {
       type: Boolean,
       default: false,
+    },
+    image: {
+      type: String,
+      default: "avatar.jfif",
     },
   },
   { timestamps: true, versionKey: false }

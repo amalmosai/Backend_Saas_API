@@ -6,9 +6,13 @@ import { hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
 import {
   defaultPermissions,
+  familyOlders,
+  financialManager,
+  socialManager,
   superAdminPermissions,
 } from "../models/permission.model";
 import { sendAccountStatusEmail } from "../services/email.service";
+import Member from "../models/member.model";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -16,16 +20,8 @@ const DEFAULT_IMAGE_URL =
 class UserController {
   createUser = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const {
-        fname,
-        lname,
-        email,
-        password,
-        phone,
-        familyBranch,
-        familyRelationship,
-        role,
-      } = req.body;
+      const { email, password, phone, familyBranch, familyRelationship, role } =
+        req.body;
 
       const emailExists = await User.findOne({ email });
 
@@ -35,21 +31,28 @@ class UserController {
         );
       }
 
-      let image;
-      if (req.file?.path) {
-        image = req.file.path.replace(/\\/g, "/");
-      } else {
-        image = DEFAULT_IMAGE_URL;
-      }
-
       let permission;
       let status;
-      if (role === "مدير النظام العام") {
-        permission = superAdminPermissions;
-        status = "accept";
-      } else {
-        permission = defaultPermissions;
-        status = "pending";
+      switch (role) {
+        case "مدير النظام":
+          permission = superAdminPermissions;
+          status = "مقبول";
+          break;
+        case "مدير اللجنه الاجتماعية":
+          permission = socialManager;
+          status = "مقبول";
+          break;
+        case "مدير اللجنه الماليه":
+          permission = financialManager;
+          status = "مقبول";
+          break;
+        case "كبار الاسرة":
+          permission = familyOlders;
+          status = "مقبول";
+          break;
+        default:
+          permission = defaultPermissions;
+          status = "قيد الانتظار";
       }
 
       const familyName = "Elsaqar";
@@ -67,14 +70,11 @@ class UserController {
 
       const user = new User({
         tenantId: tenant._id,
-        fname,
-        lname,
         email,
         password: hashedPwd,
         phone,
         familyBranch,
         familyRelationship,
-        image,
         permissions: permission,
         status,
       });
@@ -86,9 +86,27 @@ class UserController {
       }
       await user.save();
 
+      const newMember = new Member({
+        userId: user._id,
+        fname: email.split("@")[0],
+        lname: "الدهمش",
+        gender: "ذكر",
+        familyBranch,
+        isUser: true,
+        image: DEFAULT_IMAGE_URL,
+      });
+
+      await newMember.save();
+
+      user.memberId = newMember._id;
+      await user.save();
+
       res.status(HttpCode.CREATED).json({
         success: true,
-        data: user,
+        data: {
+          user,
+          member: newMember,
+        },
         message: "user created sucessfully",
       });
     }
@@ -171,7 +189,7 @@ class UserController {
         return next(createCustomError("User not found", HttpCode.NOT_FOUND));
       }
 
-      const isSuperAdmin = userToDelete?.role?.includes("مدير النظام العام");
+      const isSuperAdmin = userToDelete?.role?.includes("مدير النظام");
 
       if (isSuperAdmin) {
         return next(
@@ -200,9 +218,6 @@ class UserController {
 
       let updateData = req.body;
 
-      if (req.file?.path) {
-        updateData.image = req.file.path.replace(/\\/g, "/");
-      }
       const originalUser = await User.findById(id);
 
       if (!originalUser) {
@@ -211,7 +226,7 @@ class UserController {
 
       if (
         Array.isArray(originalUser?.role) &&
-        originalUser.role.includes("مدير النظام العام") &&
+        originalUser.role.includes("مدير النظام") &&
         loggedInUserId !== originalUser?._id.toString()
       ) {
         return next(

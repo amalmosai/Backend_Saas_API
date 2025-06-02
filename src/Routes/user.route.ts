@@ -5,14 +5,12 @@ import { authenticateUser, authorizePermission } from "../middlewares/auth";
 
 const router = express.Router();
 
-router
-  .route("/")
-  .post(
-    authenticateUser,
-    authorizePermission("user", "create"),
-    upload.single("image"),
-    UserController.createUser
-  );
+router.route("/").post(
+  authenticateUser,
+  authorizePermission("user", "create"),
+  // upload.single("image"),
+  UserController.createUser
+);
 
 router
   .route("/")
@@ -32,9 +30,11 @@ router
     UserController.deleteUser
   );
 
-router
-  .route("/:id")
-  .patch(authenticateUser, upload.single("image"), UserController.updateUser);
+router.route("/:id").patch(
+  authenticateUser,
+  //  upload.single("image"),
+  UserController.updateUser
+);
 
 router
   .route("/authUser")

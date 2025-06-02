@@ -13,4 +13,5 @@ export default interface IMember {
   husband?: Types.ObjectId; //for female
   wives?: Types.ObjectId[]; //for male
   isUser?: boolean;
+  image?: string;
 }

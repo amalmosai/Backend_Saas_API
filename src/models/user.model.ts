@@ -1,6 +1,8 @@
 import { Schema, model, Types } from "mongoose";
 import IUser, { IUserDocument } from "../Interfaces/user.interface";
 import { defaultPermissions, permissionSchema } from "./permission.model";
+import Member from "./member.model";
+import { NextFunction } from "express";
 
 const userSchema = new Schema<IUserDocument>(
   {
@@ -9,6 +11,7 @@ const userSchema = new Schema<IUserDocument>(
       ref: "tenant",
       required: true,
     },
+    memberId: { type: Schema.Types.ObjectId, ref: "members", index: true },
     email: {
       type: String,
       required: [true, "Email address is required"],
@@ -28,10 +31,6 @@ const userSchema = new Schema<IUserDocument>(
     phone: {
       type: Number,
       required: [true, "Please provide phone number"],
-    },
-    image: {
-      type: String,
-      default: "avatar.jfif",
     },
     role: {
       type: [String],

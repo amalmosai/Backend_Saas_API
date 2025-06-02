@@ -58,7 +58,6 @@ class AuthController {
         phone: phoneNumber,
         familyBranch,
         familyRelationship,
-        image,
       });
 
       await newUser.save();
@@ -66,10 +65,11 @@ class AuthController {
       const newMember = new Member({
         userId: newUser._id,
         fname: email.split("@")[0],
-        lname: "",
+        lname: "الدهمش",
         gender: "ذكر",
         familyBranch,
         isUser: true,
+        image,
       });
 
       await newMember.save();

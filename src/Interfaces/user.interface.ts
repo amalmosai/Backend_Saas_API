@@ -2,10 +2,10 @@ import { Types } from "mongoose";
 
 export default interface IUser {
   tenantId: Types.ObjectId;
+  memberId: Types.ObjectId;
   email: string;
   password: string;
   phone: number;
-  image?: string;
   role?: string[];
   familyBranch: string;
   familyRelationship: string;

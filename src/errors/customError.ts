@@ -8,6 +8,7 @@ export enum HttpCode {
   CREATED = 201,
   INTERNAL_SERVER_ERROR = 500,
   FORBIDDEN = 403,
+  CONFLICT = 409,
 }
 
 export class CustomError extends Error {

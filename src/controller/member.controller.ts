@@ -3,21 +3,88 @@ import asyncWrapper from "../middlewares/asynHandler";
 import Member from "../models/member.model";
 import { HttpCode, createCustomError } from "../errors/customError";
 
+const DEFAULT_IMAGE_URL =
+  "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
+
 class MemberController {
   createMember = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { fullName, gender } = req.body;
+      const { fname, lname, familyBranch, gender, father, husband, wives } =
+        req.body;
 
-      if (!fullName || !gender) {
+      if (req.file?.path) {
+        req.body.image = req.file.path.replace(/\\/g, "/");
+      } else {
+        req.body.image = DEFAULT_IMAGE_URL;
+      }
+
+      if (!fname || !lname || !gender || !familyBranch) {
         return next(
           createCustomError(
-            "Full name and gender are required",
+            "First name, last name, gender, and family branch are required.",
             HttpCode.BAD_REQUEST
           )
         );
       }
+
+      const isRootFather = !father;
+
+      if (isRootFather) {
+        const existingRoot = await Member.findOne({
+          familyBranch,
+          father: null,
+        });
+
+        if (existingRoot) {
+          return next(
+            createCustomError(
+              `There is already a root father for branch "${familyBranch}".`,
+              HttpCode.CONFLICT
+            )
+          );
+        }
+      }
+
+      if (wives && Array.isArray(wives) && wives.length > 0) {
+        const wifeMembers = await Member.find({ _id: { $in: wives } });
+
+        if (wifeMembers.length !== wives.length) {
+          return next(
+            createCustomError(
+              "One or more wives not found",
+              HttpCode.BAD_REQUEST
+            )
+          );
+        }
+
+        const nonFemales = wifeMembers.filter((w) => w.gender !== "أنثى");
+
+        if (nonFemales.length > 0) {
+          return next(
+            createCustomError("All wives must be female", HttpCode.BAD_REQUEST)
+          );
+        }
+      }
+
+      if (gender === "أنثى" && husband) {
+        const husbandMember = await Member.findById(husband);
+
+        if (!husbandMember) {
+          return next(
+            createCustomError("Husband not found", HttpCode.BAD_REQUEST)
+          );
+        }
+
+        if (husbandMember.gender !== "ذكر") {
+          return next(
+            createCustomError("Husband must be male", HttpCode.BAD_REQUEST)
+          );
+        }
+      }
+
       const member = await Member.create(req.body);
       await member.save();
+
       res.status(HttpCode.CREATED).json({
         success: true,
         message: "Member created successfully",

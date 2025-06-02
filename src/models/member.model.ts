@@ -10,9 +10,11 @@ const memberSchema = new Schema<IMember>(
     },
     fname: {
       type: String,
+      required: [true, "Last name is required"],
     },
     lname: {
       type: String,
+      required: [true, "First name is required"],
     },
     gender: {
       type: String,

@@ -2,8 +2,6 @@ import { Types } from "mongoose";
 
 export default interface IUser {
   tenantId: Types.ObjectId;
-  fname: string;
-  lname: string;
   email: string;
   password: string;
   phone: number;
@@ -13,8 +11,6 @@ export default interface IUser {
   familyRelationship: string;
   status?: string;
   address?: string;
-  birthday?: Date;
-  personalProfile?: string;
   permissions: any;
 }
 

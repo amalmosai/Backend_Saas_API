@@ -8,75 +8,82 @@ export const actionPermissions = {
 };
 
 export const defaultPermissions = [
-  { entity: "event", view: false, update: false, delete: false, create: false },
   {
-    entity: "member",
+    entity: "مناسبه",
     view: false,
     update: false,
     delete: false,
     create: false,
   },
   {
-    entity: "user",
+    entity: "عضو",
     view: false,
     update: false,
     delete: false,
     create: false,
   },
   {
-    entity: "album",
+    entity: "مستخدم",
     view: false,
     update: false,
     delete: false,
     create: false,
   },
   {
-    entity: "financial",
+    entity: "معرض الصور",
     view: false,
     update: false,
     delete: false,
     create: false,
   },
   {
-    entity: "advertisement",
+    entity: "ماليه",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+  {
+    entity: "اعلان",
     view: false,
     update: false,
     delete: false,
     create: false,
   },
 ];
+
 export const superAdminPermissions = [
-  { entity: "event", view: true, update: true, delete: true, create: true },
+  { entity: "مناسبه", view: true, update: true, delete: true, create: true },
   {
-    entity: "member",
+    entity: "عضو",
     view: true,
     update: true,
     delete: true,
     create: true,
   },
   {
-    entity: "user",
+    entity: "مستخدم",
     view: true,
     update: true,
     delete: true,
     create: true,
   },
   {
-    entity: "album",
+    entity: "معرض الصور",
     view: true,
     update: true,
     delete: true,
     create: true,
   },
   {
-    entity: "financial",
+    entity: "ماليه",
     view: true,
     update: true,
     delete: true,
     create: true,
   },
   {
-    entity: "advertisement",
+    entity: "اعلان",
     view: true,
     update: true,
     delete: true,
@@ -84,9 +91,47 @@ export const superAdminPermissions = [
   },
 ];
 
+export const financialManager = [
+  {
+    entity: "ماليه",
+    view: true,
+    update: true,
+    delete: true,
+    create: true,
+  },
+];
+
+export const socialManager = [
+  { entity: "مناسبه", view: true, update: true, delete: true, create: true },
+  {
+    entity: "معرض الصور",
+    view: true,
+    update: true,
+    delete: true,
+    create: true,
+  },
+  {
+    entity: "اعلان",
+    view: true,
+    update: true,
+    delete: true,
+    create: true,
+  },
+];
+
+export const familyOlders = [
+  {
+    entity: "ماليه",
+    view: true,
+    update: false,
+    delete: false,
+    create: false,
+  },
+];
+
 export const permissionSchema = new Schema(
   {
-    entity: { type: String, required: true }, // e.g. "event", "member"
+    entity: { type: String, required: true },
     ...actionPermissions,
   },
   { _id: false }

@@ -8,6 +8,7 @@ import { sendWelcomeEmail } from "../services/email.service";
 import { clearCookie, setCookie } from "../utils/cookie";
 import { comparePasswords, hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
+import Member from "../models/member.model";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -16,24 +17,16 @@ class AuthController {
   // Register a new user
   register = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const {
-        fname,
-        lname,
-        email,
-        password,
-        phone,
-        familyBranch,
-        familyRelationship,
-        image,
-      } = req.body;
+      const { email, password, phone, familyBranch, familyRelationship } =
+        req.body;
 
-      let avatar;
+      let image;
       if (req.file?.path) {
-        avatar = req.file.path.replace(/\\/g, "/");
+        image = req.file.path.replace(/\\/g, "/");
       } else {
-        avatar = DEFAULT_IMAGE_URL;
+        image = DEFAULT_IMAGE_URL;
       }
-      console.log(avatar);
+      console.log(image);
 
       const familyName = "Elsaqar";
 
@@ -60,27 +53,31 @@ class AuthController {
 
       const newUser = new User({
         tenantId: tenant._id,
-        fname,
-        lname,
         email,
         password: hashedPassword,
         phone: phoneNumber,
         familyBranch,
         familyRelationship,
-        image: avatar,
+        image,
       });
 
-      const token = await generateToken({
-        role: newUser.role,
-        id: newUser._id,
-      });
       await newUser.save();
 
+      const newMember = new Member({
+        userId: newUser._id,
+        fname: email.split("@")[0],
+        lname: "",
+        gender: "ذكر",
+        familyBranch,
+        isUser: true,
+      });
+
+      await newMember.save();
       sendWelcomeEmail(newUser);
 
       res.status(HttpCode.CREATED).json({
         sucess: true,
-        data: newUser,
+        data: { newUser, newMember },
         message: "User register sucessfully",
       });
     }

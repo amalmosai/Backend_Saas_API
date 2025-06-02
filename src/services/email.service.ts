@@ -46,7 +46,7 @@ export const sendAccountStatusEmail = async (user: IUser) => {
       subject = "تم قبول حسابك بنجاح!";
       html = `
         <div dir="rtl" style="text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; line-height: 1.6;">
-          <h1>مرحباً ${user.fname} ${user.lname}!</h1>
+          <h1>مرحباً!</h1>
           <p>يسرنا إعلامك بأنه تم الموافقة على حسابك بنجاح.</p>
           <p>يمكنك الآن تسجيل الدخول والبدء باستخدام جميع ميزات منصتنا.</p>
           ${
@@ -72,7 +72,7 @@ export const sendAccountStatusEmail = async (user: IUser) => {
       subject = "حالة طلب إنشاء الحساب";
       html = `
         <div dir="rtl" style="text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; line-height: 1.6;">
-          <h1>مرحباً ${user.fname} ${user.lname}!</h1>
+          <h1>مرحباً!</h1>
           <p>بعد المراجعة الدقيقة، لا يمكننا الموافقة على طلب إنشاء حسابك في هذا الوقت.</p>
           <p>إذا كنت تعتقد أن هذا خطأ، يرجى التواصل مع فريق الدعم للمساعدة.</p>
           ${

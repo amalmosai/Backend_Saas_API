@@ -2,11 +2,15 @@ import { Types } from "mongoose";
 
 export default interface IMember {
   userId?: Types.ObjectId;
-  fullName: string;
-  gender: "female" | "male";
+  fname: string;
+  lname: string;
+  gender: "أنثى" | "ذكر";
+  familyBranch: string;
   birthday?: Date;
   deathDate?: Date;
   summary?: string;
-  father?: string;
-  husbandOrWife?: string;
+  father?: Types.ObjectId;
+  husband?: Types.ObjectId; //for female
+  wives?: Types.ObjectId[]; //for male
+  isUser?: boolean;
 }

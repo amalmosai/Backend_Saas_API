@@ -6,15 +6,32 @@ const memberSchema = new Schema<IMember>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: "users",
+      default: null,
     },
-    fullName: {
+    fname: {
       type: String,
-      required: [true, "full Name is required"],
+    },
+    lname: {
+      type: String,
     },
     gender: {
       type: String,
-      enum: ["female", "male"],
+      enum: ["ذكر", "أنثى"],
       required: [true, "Gender is required"],
+    },
+    familyBranch: {
+      type: String,
+      enum: {
+        values: [
+          "الفرع الخامس",
+          "الفرع الرابع",
+          "الفرع الثالث",
+          "الفرع الثاني",
+          "الفرع الاول",
+        ],
+        message: "{VALUE} غير مدعوم",
+      },
+      required: [true, "Family Branch is required"],
     },
     birthday: {
       type: Date,
@@ -26,10 +43,14 @@ const memberSchema = new Schema<IMember>(
       type: String,
     },
     father: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "members",
     },
-    husbandOrWife: {
-      type: String,
+    husband: { type: Schema.Types.ObjectId, ref: "members" },
+    wives: [{ type: Schema.Types.ObjectId, ref: "members" }],
+    isUser: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true, versionKey: false }

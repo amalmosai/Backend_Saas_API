@@ -35,6 +35,14 @@ const memberSchema = new Schema<IMember>(
       },
       required: [true, "Family Branch is required"],
     },
+    familyRelationship: {
+      type: String,
+      enum: {
+        values: ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "أخرى"],
+        message: "{VALUE} غير مدعوم",
+      },
+      required: [true, "Family Relationship is required"],
+    },
     birthday: {
       type: Date,
     },
@@ -43,10 +51,6 @@ const memberSchema = new Schema<IMember>(
     },
     summary: {
       type: String,
-    },
-    father: {
-      type: Schema.Types.ObjectId,
-      ref: "members",
     },
     husband: { type: Schema.Types.ObjectId, ref: "members", default: null },
     wives: [{ type: Schema.Types.ObjectId, ref: "members" }],

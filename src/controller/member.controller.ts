@@ -9,8 +9,15 @@ const DEFAULT_IMAGE_URL =
 class MemberController {
   createMember = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { fname, lname, familyBranch, gender, father, husband, wives } =
-        req.body;
+      const {
+        fname,
+        lname,
+        familyBranch,
+        familyRelationship,
+        gender,
+        husband,
+        wives,
+      } = req.body;
 
       if (req.file?.path) {
         req.body.image = req.file.path.replace(/\\/g, "/");
@@ -18,28 +25,35 @@ class MemberController {
         req.body.image = DEFAULT_IMAGE_URL;
       }
 
-      if (!fname || !lname || !gender || !familyBranch) {
+      if (!fname || !lname || !gender || !familyBranch || !familyRelationship) {
         return next(
           createCustomError(
-            "First name, last name, gender, and family branch are required.",
+            "First name, last name, gender, familyRelationship and family branch are required.",
             HttpCode.BAD_REQUEST
           )
         );
       }
 
-      const isRootFather = !father;
-
-      if (isRootFather) {
-        const existingRoot = await Member.findOne({
+      if (familyRelationship === "زوج") {
+        const existingHead = await Member.findOne({
           familyBranch,
-          father: null,
+          familyRelationship: "زوج",
         });
 
-        if (existingRoot) {
+        if (existingHead) {
           return next(
             createCustomError(
-              `There is already a root father for branch "${familyBranch}".`,
-              HttpCode.CONFLICT
+              `This family branch already has a male head (${existingHead.fname} ${existingHead.lname})`,
+              HttpCode.BAD_REQUEST
+            )
+          );
+        }
+
+        if (gender !== "ذكر") {
+          return next(
+            createCustomError(
+              "Family head (زوج) must be male",
+              HttpCode.BAD_REQUEST
             )
           );
         }
@@ -65,25 +79,21 @@ class MemberController {
           );
         }
       }
-
-      if (gender === "أنثى" && husband) {
+      
+      if (familyRelationship === "زوجة" && husband) {
         const husbandMember = await Member.findById(husband);
-
         if (!husbandMember) {
-          return next(
-            createCustomError("Husband not found", HttpCode.BAD_REQUEST)
-          );
+          return next(createCustomError("Husband not found", HttpCode.BAD_REQUEST));
         }
-
         if (husbandMember.gender !== "ذكر") {
-          return next(
-            createCustomError("Husband must be male", HttpCode.BAD_REQUEST)
-          );
+          return next(createCustomError("Husband must be male", HttpCode.BAD_REQUEST));
+        }
+        if (husbandMember.familyBranch !== familyBranch) {
+          return next(createCustomError("Husband must be from the same family branch", HttpCode.BAD_REQUEST));
         }
       }
 
       const member = await Member.create(req.body);
-      await member.save();
 
       res.status(HttpCode.CREATED).json({
         success: true,

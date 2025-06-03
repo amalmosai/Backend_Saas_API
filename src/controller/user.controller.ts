@@ -50,6 +50,23 @@ class UserController {
         );
       }
 
+      if (familyRelationship === "زوج") {
+        const existingHusband = await User.findOne({
+          familyBranch,
+          familyRelationship: "زوج",
+          status: "مقبول",
+        });
+
+        if (existingHusband) {
+          return next(
+            createCustomError(
+              `Branch ${familyBranch} already has an approved husband`,
+              HttpCode.CONFLICT
+            )
+          );
+        }
+      }
+
       let permission;
       switch (role) {
         case "مدير النظام":
@@ -94,12 +111,18 @@ class UserController {
       }
       await user.save();
 
+      const femaleRelationships = new Set(["زوجة", "ابنة"]);
+      const gender = femaleRelationships.has(familyRelationship)
+        ? "أنثى"
+        : "ذكر";
+
       const newMember = new Member({
         userId: user._id,
         fname: email.split("@")[0],
         lname: "الدهمش",
-        gender: "ذكر",
+        gender,
         familyBranch,
+        familyRelationship,
         isUser: true,
         image: DEFAULT_IMAGE_URL,
       });

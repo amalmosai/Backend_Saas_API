@@ -2244,6 +2244,115 @@ const options: swaggerJsdoc.Options = {
           },
         },
       },
+      "/album/{id}/images/{imageId}": {
+        delete: {
+          summary: "Delete an image from an album.",
+          tags: ["Album"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          parameters: [
+            {
+              in: "path",
+              name: "id",
+              required: true,
+              schema: {
+                type: String,
+              },
+              description: "The ID of the album",
+            },
+            {
+              in: "path",
+              name: "imageId",
+              required: true,
+              schema: {
+                type: String,
+              },
+              description: "The ID of the image to delete"
+            },
+          ],
+          description: "Delete an image from an album by id",
+          responses: {
+            "200": {
+              description: "Image deleted from an album successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                      },
+                      data: {
+                        type: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "404": {
+              description: "Not Found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 404,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              description: "Unauthorized",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        default: false,
+                      },
+                      data: {
+                        type: "object",
+                        default: null,
+                      },
+                      message: {
+                        type: "string",
+                      },
+                      statusCode: {
+                        type: "number",
+                        default: 401,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
 
       /** financial route documentation**/
       "/financial/": {

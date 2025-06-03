@@ -79,17 +79,26 @@ class MemberController {
           );
         }
       }
-      
+
       if (familyRelationship === "زوجة" && husband) {
         const husbandMember = await Member.findById(husband);
         if (!husbandMember) {
-          return next(createCustomError("Husband not found", HttpCode.BAD_REQUEST));
+          return next(
+            createCustomError("Husband not found", HttpCode.BAD_REQUEST)
+          );
         }
         if (husbandMember.gender !== "ذكر") {
-          return next(createCustomError("Husband must be male", HttpCode.BAD_REQUEST));
+          return next(
+            createCustomError("Husband must be male", HttpCode.BAD_REQUEST)
+          );
         }
         if (husbandMember.familyBranch !== familyBranch) {
-          return next(createCustomError("Husband must be from the same family branch", HttpCode.BAD_REQUEST));
+          return next(
+            createCustomError(
+              "Husband must be from the same family branch",
+              HttpCode.BAD_REQUEST
+            )
+          );
         }
       }
 
@@ -106,15 +115,58 @@ class MemberController {
   updateMember = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
+      const {
+        fname,
+        lname,
+        familyBranch,
+        familyRelationship,
+        gender,
+        husband,
+        wives,
+      } = req.body;
+
+      const member = await Member.findById(id);
+      if (!member) {
+        return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
+      }
+
+      if (req.file?.path) {
+        req.body.image = req.file.path.replace(/\\/g, "/");
+      }
+
+      if (familyRelationship === "زوج" && member.familyRelationship !== "زوج") {
+        const existingHead = await Member.findOne({
+          familyBranch,
+          familyRelationship: "زوج",
+          _id: { $ne: member._id },
+        });
+        if (existingHead) {
+          return next(
+            createCustomError(
+              `This family branch already has a male head (${existingHead.fname} ${existingHead.lname})`,
+              HttpCode.BAD_REQUEST
+            )
+          );
+        }
+      }
+
+      if (husband) {
+        const husbandMember = await Member.findById(husband);
+        if (!husbandMember) {
+          return next(
+            createCustomError("Husband not found", HttpCode.BAD_REQUEST)
+          );
+        }
+      }
 
       const updatedMember = await Member.findByIdAndUpdate(id, req.body, {
         new: true,
         runValidators: true,
-      }).populate("userId");
+      })
+        .populate("userId")
+        .populate("husband")
+        .populate("wives");
 
-      if (!updatedMember) {
-        return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
-      }
       res.status(HttpCode.OK).json({
         success: true,
         data: updatedMember,
@@ -155,7 +207,11 @@ class MemberController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
 
-      const member = await Member.findById(id).populate("userId");
+      const member = await Member.findById(id)
+        .populate("userId")
+        .populate("husband")
+        .populate("wives");
+
       if (!member) {
         return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
       }

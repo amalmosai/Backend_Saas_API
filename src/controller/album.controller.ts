@@ -189,6 +189,48 @@ class AlbumController {
       });
     }
   );
+
+  deleteImageFromAlbum = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id: albumId, imageId } = req.params;
+
+      if (!albumId || !imageId) {
+        return next(
+          createCustomError(
+            "Album ID and Image ID are required",
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      const updatedAlbum = await Album.findByIdAndUpdate(
+        albumId,
+        { $pull: { images: imageId } },
+        { new: true }
+      )
+        .populate("images")
+        .populate({
+          path: "createdBy",
+          select: "-password -permissions -_id",
+        });
+
+      if (!updatedAlbum) {
+        return next(createCustomError("Album not found", HttpCode.NOT_FOUND));
+      }
+
+      const deletedImage = await Image.findByIdAndDelete(imageId);
+
+      if (!deletedImage) {
+        return next(createCustomError("Image not found", HttpCode.NOT_FOUND));
+      }
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: "Image deleted from album",
+        data: updatedAlbum,
+      });
+    }
+  );
 }
 
 export default new AlbumController();

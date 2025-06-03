@@ -45,4 +45,12 @@ router
     authorizePermission("album", "update"),
     AlbumController.updateAlbumById
   );
+
+router
+  .route("/:id/images/:imageId")
+  .delete(
+    authenticateUser,
+    authorizePermission("album", "update"),
+    AlbumController.deleteImageFromAlbum
+  );
 export default router;

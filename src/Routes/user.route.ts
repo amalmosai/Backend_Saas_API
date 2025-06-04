@@ -20,6 +20,8 @@ router
     UserController.getAllUsers
   );
 
+router.route("/roles").get(authenticateUser, UserController.getAllRoles);
+
 router.route("/:id").get(authenticateUser, UserController.getUser);
 
 router
@@ -29,6 +31,10 @@ router
     authorizePermission("user", "delete"),
     UserController.deleteUser
   );
+
+router
+  .route("/:id/role")
+  .delete(authenticateUser, UserController.deleteRoleFromUser);
 
 router.route("/:id").patch(authenticateUser, UserController.updateUser);
 

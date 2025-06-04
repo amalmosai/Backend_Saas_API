@@ -197,7 +197,9 @@ class UserController {
     async (req: Request, res: Response, next: NextFunction) => {
       const id = req.user?.id;
 
-      const user = await User.findById(id).select("-password");
+      const user = await User.findById(id)
+        .select("-password")
+        .populate("memberId");
 
       if (!user) {
         return next(createCustomError("User not found", HttpCode.NOT_FOUND));
@@ -346,6 +348,75 @@ class UserController {
         success: true,
         message: `Permission '${action}' for '${entity}' updated successfully`,
         data: user.permissions,
+      });
+    }
+  );
+
+  getAllRoles = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const users = await User.find({}, "role");
+
+      const roleSet = new Set<string>();
+
+      for (const user of users) {
+        if (Array.isArray(user.role)) {
+          user.role.forEach((role) => roleSet.add(role));
+        }
+      }
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: [...roleSet],
+        message: "All unique roles retrieved successfully",
+      });
+    }
+  );
+
+  deleteRoleFromUser = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      const { role } = req.body;
+
+      if (!role || typeof role !== "string") {
+        return next(
+          createCustomError(
+            "Role name is required and must be a string",
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      if (role === "مدير النظام") {
+        return next(
+          createCustomError(
+            "Cannot remove super admin role from the system",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
+
+      const user = await User.findById(id);
+
+      if (!user) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      if (!user.role || !user.role.includes(role)) {
+        return next(
+          createCustomError(
+            `User does not have the role '${role}'`,
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      user.role = user.role.filter((r: string) => r !== role);
+      await user.save();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: user,
+        message: `Role '${role}' removed successfully from user`,
       });
     }
   );

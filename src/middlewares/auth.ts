@@ -26,7 +26,7 @@ export const authenticateUser = async (
 
   if (!token) {
     return next(
-      createCustomError(`Authorization token not found"`, HttpCode.UNAUTHORIZED)
+      createCustomError(`Authorization token not found`, HttpCode.UNAUTHORIZED)
     );
   }
 

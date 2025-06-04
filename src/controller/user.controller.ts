@@ -411,6 +411,11 @@ class UserController {
       }
 
       user.role = user.role.filter((r: string) => r !== role);
+
+      if (user.role.length === 0) {
+        user.role = ["مستخدم"];
+      }
+
       await user.save();
 
       res.status(HttpCode.OK).json({

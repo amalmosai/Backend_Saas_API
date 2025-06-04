@@ -20,6 +20,23 @@ class AuthController {
       const { email, password, phone, familyBranch, familyRelationship } =
         req.body;
 
+      if (familyRelationship === "زوج") {
+        const existingHusband = await User.findOne({
+          familyBranch,
+          familyRelationship: "زوج",
+          status: "مقبول",
+        });
+
+        if (existingHusband) {
+          return next(
+            createCustomError(
+              `Branch ${familyBranch} already has an approved husband`,
+              HttpCode.CONFLICT
+            )
+          );
+        }
+      }
+
       let image;
       if (req.file?.path) {
         image = req.file.path.replace(/\\/g, "/");
@@ -62,12 +79,18 @@ class AuthController {
 
       await newUser.save();
 
+      const femaleRelationships = new Set(["زوجة", "ابنة"]);
+      const gender = femaleRelationships.has(familyRelationship)
+        ? "أنثى"
+        : "ذكر";
+
       const newMember = new Member({
         userId: newUser._id,
         fname: email.split("@")[0],
         lname: "الدهمش",
-        gender: "ذكر",
+        gender,
         familyBranch,
+        familyRelationship,
         isUser: true,
         image,
       });

@@ -79,6 +79,12 @@ const userSchema = new Schema<IUserDocument>(
       type: [permissionSchema],
       default: defaultPermissions,
     },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   },
   { timestamps: true, versionKey: false }
 );

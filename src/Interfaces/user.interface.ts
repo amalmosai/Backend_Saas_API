@@ -27,6 +27,8 @@ export default interface IUser {
   status?: string;
   address?: string;
   permissions: any;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 }
 
 export interface IUserDocument extends IUser, Document {

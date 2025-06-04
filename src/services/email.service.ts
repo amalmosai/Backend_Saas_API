@@ -103,6 +103,45 @@ export const sendAccountStatusEmail = async (user: IUser) => {
   }
 };
 
+export const sendPasswordResetEmail = async (
+  email: string,
+  resetUrl: string
+) => {
+  try {
+    const subject = "إعادة تعيين كلمة المرور الخاصة بك";
+
+    const html = `
+      <div dir="rtl" style="text-align: right; font-family: Arial, sans-serif;">
+        <h2>طلب إعادة تعيين كلمة المرور</h2>
+        <p>لقد تلقينا طلبًا لإعادة تعيين كلمة المرور الخاصة بك.</p>
+        <p>لإعادة تعيين كلمة المرور، يرجى الضغط على الزر أدناه:</p>
+        <p>
+          <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+            إعادة تعيين كلمة المرور
+          </a>
+        </p>
+        <p>أو يمكنك نسخ الرابط التالي ولصقه في المتصفح:</p>
+        <p><a href="${resetUrl}" style="color: #007bff;">${resetUrl}</a></p>
+        <p>إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذه الرسالة.</p>
+        <p>مع تحياتنا،</p>
+        <p>فريق الدعم</p>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject,
+      html,
+    };
+
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw error;
+  }
+};
+
 // export const sendVerificationEmail = async (user: IUser, token: string) => {
 //   try {
 //     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;

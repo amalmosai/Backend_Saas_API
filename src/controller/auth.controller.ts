@@ -9,6 +9,8 @@ import { clearCookie, setCookie } from "../utils/cookie";
 import { comparePasswords, hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
 import Member from "../models/member.model";
+import crypto from "crypto";
+import { sendPasswordResetEmail } from "../services/email.service";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -124,14 +126,14 @@ class AuthController {
         );
       }
 
-      if (authUser.status !== "accept") {
-        return next(
-          createCustomError(
-            "Account is still under review. Please wait for approval.",
-            HttpCode.FORBIDDEN
-          )
-        );
-      }
+      // if (authUser.status !== "accept") {
+      //   return next(
+      //     createCustomError(
+      //       "Account is still under review. Please wait for approval.",
+      //       HttpCode.FORBIDDEN
+      //     )
+      //   );
+      // }
 
       const isPasswordCorrect = await comparePasswords(
         password,
@@ -171,6 +173,76 @@ class AuthController {
         success: true,
         message: "User successfully logged out",
         data: null,
+      });
+    }
+  );
+
+  forgotPassword = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { email } = req.body;
+
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+      user.resetPasswordToken = hashedToken;
+      user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      await user.save();
+
+      const resetUrl = `https://yourfrontend.com/reset-password/${resetToken}`;
+      console.log(resetUrl);
+      await sendPasswordResetEmail(user.email, resetUrl);
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: "Password reset link has been sent if the email exists.",
+        data: user,
+      });
+    }
+  );
+
+  resetPassword = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { token } = req.params;
+      const { newPassword } = req.body;
+
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+      const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: { $gt: new Date() },
+      });
+
+      if (!user) {
+        return next(
+          createCustomError(
+            "Invalid or expired reset token",
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      user.password = await hashPassword(newPassword);
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+
+      await user.save();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: "Password has been reset successfully.",
       });
     }
   );

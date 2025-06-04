@@ -238,6 +238,32 @@ class MemberController {
       });
     }
   );
+
+  getMembersByBranchAndRelationship = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { familyBranch, relationship } = req.query;
+
+      if (!familyBranch || !relationship) {
+        return next(
+          createCustomError(
+            "Family branch and relationship are required.",
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      const members = await Member.find({
+        familyBranch,
+        familyRelationship: relationship,
+      }).select("_id fname lname");
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: members,
+        message: "Members retrieved successfully",
+      });
+    }
+  );
 }
 
 export default new MemberController();

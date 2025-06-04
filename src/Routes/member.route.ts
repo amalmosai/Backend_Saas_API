@@ -41,4 +41,12 @@ router
     MemberController.updateMember
   );
 
+router
+  .route("/by-branch-relationship")
+  .get(
+    authenticateUser,
+    authorizePermission("member", "view"),
+    MemberController.getMembersByBranchAndRelationship
+  );
+
 export default router;

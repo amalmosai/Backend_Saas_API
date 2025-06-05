@@ -372,9 +372,9 @@ class UserController {
     }
   );
 
-  deleteRoleFromUser = asyncWrapper(
+  deleteRoleFromAllUsers = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { id } = req.params;
+      console.log("user");
       const { role } = req.body;
 
       if (!role || typeof role !== "string") {
@@ -386,42 +386,59 @@ class UserController {
         );
       }
 
-      if (role === "مدير النظام") {
+      if (role === "مدير النظام" || role === "مستخدم") {
         return next(
           createCustomError(
-            "Cannot remove super admin role from the system",
+            "Cannot remove super admin and user role from the system",
             HttpCode.FORBIDDEN
           )
         );
       }
 
-      const user = await User.findById(id);
+      const usersWithRole = await User.find({ role: { $in: [role] } });
 
-      if (!user) {
-        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
-      }
-
-      if (!user.role || !user.role.includes(role)) {
+      if (usersWithRole.length === 0) {
         return next(
           createCustomError(
-            `User does not have the role '${role}'`,
-            HttpCode.BAD_REQUEST
+            `No users found with the role '${role}'`,
+            HttpCode.NOT_FOUND
           )
         );
       }
 
-      user.role = user.role.filter((r: string) => r !== role);
-
-      if (user.role.length === 0) {
-        user.role = ["مستخدم"];
-      }
-
-      await user.save();
+      const updateResult = await User.updateMany({ role: { $in: [role] } }, [
+        {
+          $set: {
+            role: {
+              $filter: {
+                input: "$role",
+                as: "r",
+                cond: { $ne: ["$$r", role] },
+              },
+            },
+          },
+        },
+        {
+          $set: {
+            role: {
+              $cond: {
+                if: { $eq: [{ $size: "$role" }, 0] },
+                then: ["مستخدم"],
+                else: "$role",
+              },
+            },
+          },
+        },
+      ]);
 
       res.status(HttpCode.OK).json({
         success: true,
-        data: user,
-        message: `Role '${role}' removed successfully from user`,
+        data: {
+          matchedCount: updateResult.matchedCount,
+          modifiedCount: updateResult.modifiedCount,
+          roleRemoved: role,
+        },
+        message: `Role '${role}' removed from ${updateResult.modifiedCount} users successfully`,
       });
     }
   );

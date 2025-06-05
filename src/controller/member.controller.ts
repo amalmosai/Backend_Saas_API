@@ -180,10 +180,25 @@ class MemberController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const skip = (page - 1) * limit;
-      const totalMembers = await Member.countDocuments();
 
-      const members = await Member.find()
+      const { familyBranch, familyRelationship } = req.query;
+
+      const filter: Record<string, any> = {};
+
+      if (familyBranch) {
+        filter.familyBranch = familyBranch;
+      }
+
+      if (familyRelationship) {
+        filter.familyRelationship = familyRelationship;
+      }
+
+      const totalMembers = await Member.countDocuments(filter);
+
+      const members = await Member.find(filter)
         .populate("userId")
+        .populate("husband")
+        .populate("wives")
         .skip(skip)
         .limit(limit);
 
@@ -235,32 +250,6 @@ class MemberController {
         success: true,
         message: "Member deleted successfully",
         data: null,
-      });
-    }
-  );
-
-  getMembersByBranchAndRelationship = asyncWrapper(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { familyBranch, relationship } = req.query;
-
-      if (!familyBranch || !relationship) {
-        return next(
-          createCustomError(
-            "Family branch and relationship are required.",
-            HttpCode.BAD_REQUEST
-          )
-        );
-      }
-
-      const members = await Member.find({
-        familyBranch,
-        familyRelationship: relationship,
-      }).select("_id fname lname");
-
-      res.status(HttpCode.OK).json({
-        success: true,
-        data: members,
-        message: "Members retrieved successfully",
       });
     }
   );

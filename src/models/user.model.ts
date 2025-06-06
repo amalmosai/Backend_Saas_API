@@ -54,7 +54,6 @@ const userSchema = new Schema<IUserDocument>(
         ],
         message: "{VALUE} غير مدعوم",
       },
-      required: [true, "Family Branch is required"],
     },
     familyRelationship: {
       type: String,
@@ -62,7 +61,6 @@ const userSchema = new Schema<IUserDocument>(
         values: ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "أخرى"],
         message: "{VALUE} غير مدعوم",
       },
-      required: [true, "Family Relationship is required"],
     },
     status: {
       type: String,

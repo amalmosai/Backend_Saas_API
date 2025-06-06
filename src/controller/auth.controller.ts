@@ -77,6 +77,7 @@ class AuthController {
         phone: phoneNumber,
         familyBranch,
         familyRelationship,
+        image: DEFAULT_IMAGE_URL,
       });
 
       await newUser.save();

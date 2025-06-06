@@ -286,10 +286,12 @@ class UserController {
       });
 
       if (updatedUser?.status !== originalUser.status) {
+        console.log("jhjhds");
         if (
           updatedUser?.status === "مقبول" ||
           updatedUser?.status === "مرفوض"
         ) {
+          console.log("jhjhd9999s");
           sendAccountStatusEmail(updatedUser);
         }
       }

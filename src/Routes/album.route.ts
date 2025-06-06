@@ -9,7 +9,7 @@ router
   .route("/")
   .post(
     authenticateUser,
-    authorizePermission("album", "create"),
+    authorizePermission("معرض الصور", "create"),
     AlbumController.createAlbum
   );
 
@@ -17,7 +17,7 @@ router
   .route("/")
   .get(
     authenticateUser,
-    authorizePermission("album", "view"),
+    authorizePermission("معرض الصور", "view"),
     AlbumController.getAlbums
   );
 
@@ -27,7 +27,7 @@ router
   .route("/:id")
   .delete(
     authenticateUser,
-    authorizePermission("album", "delete"),
+    authorizePermission("معرض الصور", "delete"),
     AlbumController.deleteAlbum
   );
 
@@ -42,7 +42,7 @@ router
   .route("/:id")
   .patch(
     authenticateUser,
-    authorizePermission("album", "update"),
+    authorizePermission("معرض الصور", "update"),
     AlbumController.updateAlbumById
   );
 
@@ -50,7 +50,7 @@ router
   .route("/:id/images/:imageId")
   .delete(
     authenticateUser,
-    authorizePermission("album", "update"),
+    authorizePermission("معرض الصور", "update"),
     AlbumController.deleteImageFromAlbum
   );
 export default router;

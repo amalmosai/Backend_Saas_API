@@ -8,7 +8,7 @@ router
   .route("/")
   .post(
     authenticateUser,
-    authorizePermission("event", "create"),
+    authorizePermission("مناسبه", "create"),
     EventController.createEvent
   );
 
@@ -16,7 +16,7 @@ router
   .route("/")
   .get(
     authenticateUser,
-    authorizePermission("event", "view"),
+    authorizePermission("مناسبه", "view"),
     EventController.getAllEvents
   );
 
@@ -26,7 +26,7 @@ router
   .route("/:id")
   .delete(
     authenticateUser,
-    authorizePermission("event", "delete"),
+    authorizePermission("مناسبه", "delete"),
     EventController.deleteEventById
   );
 
@@ -34,7 +34,7 @@ router
   .route("/:id")
   .patch(
     authenticateUser,
-    authorizePermission("event", "update"),
+    authorizePermission("مناسبه", "update"),
     EventController.updateEventById
   );
 

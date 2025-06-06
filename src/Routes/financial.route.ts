@@ -9,7 +9,7 @@ router
   .route("/")
   .post(
     authenticateUser,
-    authorizePermission("financial", "create"),
+    authorizePermission("ماليه", "create"),
     upload.single("image"),
     TransactionController.createTransaction
   );
@@ -18,7 +18,7 @@ router
   .route("/")
   .get(
     authenticateUser,
-    authorizePermission("financial", "view"),
+    authorizePermission("ماليه", "view"),
     TransactionController.getAllTransactions
   );
 
@@ -26,7 +26,7 @@ router
   .route("/")
   .delete(
     authenticateUser,
-    authorizePermission("financial", "delete"),
+    authorizePermission("ماليه", "delete"),
     TransactionController.deleteAllTransactions
   );
 
@@ -38,7 +38,7 @@ router
   .route("/:id")
   .delete(
     authenticateUser,
-    authorizePermission("financial", "delete"),
+    authorizePermission("ماليه", "delete"),
     TransactionController.deleteTransactionById
   );
 
@@ -46,7 +46,7 @@ router
   .route("/:id")
   .patch(
     authenticateUser,
-    authorizePermission("financial", "update"),
+    authorizePermission("ماليه", "update"),
     upload.single("image"),
     TransactionController.updateTransactionById
   );

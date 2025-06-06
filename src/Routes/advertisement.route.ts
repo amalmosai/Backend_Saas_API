@@ -9,7 +9,7 @@ router
   .route("/")
   .post(
     authenticateUser,
-    authorizePermission("advertisement", "create"),
+    authorizePermission("اعلان", "create"),
     upload.single("image"),
     AdvertisementController.createAdvertisement
   );
@@ -18,7 +18,7 @@ router
   .route("/")
   .get(
     authenticateUser,
-    authorizePermission("advertisement", "view"),
+    authorizePermission("اعلان", "view"),
     AdvertisementController.getAllAdvertisements
   );
 
@@ -26,7 +26,7 @@ router
   .route("/")
   .delete(
     authenticateUser,
-    authorizePermission("advertisement", "delete"),
+    authorizePermission("اعلان", "delete"),
     AdvertisementController.deleteAllAdvertisements
   );
 
@@ -38,7 +38,7 @@ router
   .route("/:id")
   .delete(
     authenticateUser,
-    authorizePermission("advertisement", "delete"),
+    authorizePermission("اعلان", "delete"),
     AdvertisementController.deleteAdvertisementById
   );
 
@@ -46,7 +46,7 @@ router
   .route("/:id")
   .patch(
     authenticateUser,
-    authorizePermission("advertisement", "update"),
+    authorizePermission("اعلان", "update"),
     upload.single("image"),
     AdvertisementController.updateAdvertisementById
   );

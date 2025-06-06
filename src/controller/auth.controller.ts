@@ -246,6 +246,44 @@ class AuthController {
       });
     }
   );
+
+  changePassword = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const userId = req.user?.id;
+      const { oldPassword, newPassword } = req.body;
+
+      if (!oldPassword || !newPassword) {
+        return next(
+          createCustomError(
+            "Both old and new passwords are required",
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      const isMatch = await comparePasswords(oldPassword, user.password);
+
+      if (!isMatch) {
+        return next(
+          createCustomError("Old password is incorrect", HttpCode.UNAUTHORIZED)
+        );
+      }
+
+      user.password = await hashPassword(newPassword);
+      await user.save();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: "Password changed successfully",
+      });
+    }
+  );
 }
 
 export default new AuthController();

@@ -9,7 +9,7 @@ router
   .route("/")
   .post(
     authenticateUser,
-    authorizePermission("member", "create"),
+    authorizePermission("عضو", "create"),
     upload.single("image"),
     MemberController.createMember
   );
@@ -18,7 +18,7 @@ router
   .route("/")
   .get(
     authenticateUser,
-    authorizePermission("member", "view"),
+    authorizePermission("عضو", "view"),
     MemberController.getAllMembers
   );
 
@@ -28,7 +28,7 @@ router
   .route("/:id")
   .delete(
     authenticateUser,
-    authorizePermission("member", "delete"),
+    authorizePermission("عضو", "delete"),
     MemberController.deleteMember
   );
 
@@ -36,7 +36,7 @@ router
   .route("/:id")
   .patch(
     authenticateUser,
-    authorizePermission("member", "update"),
+    authorizePermission("عضو", "update"),
     upload.single("image"),
     MemberController.updateMember
   );

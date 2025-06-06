@@ -8,7 +8,7 @@ router
   .route("/")
   .post(
     authenticateUser,
-    authorizePermission("user", "create"),
+    authorizePermission("مستخدم", "create"),
     UserController.createUser
   );
 
@@ -16,7 +16,7 @@ router
   .route("/")
   .get(
     authenticateUser,
-    authorizePermission("user", "view"),
+    authorizePermission("مستخدم", "view"),
     UserController.getAllUsers
   );
 
@@ -26,7 +26,7 @@ router
   .route("/:id")
   .delete(
     authenticateUser,
-    authorizePermission("user", "delete"),
+    authorizePermission("مستخدم", "delete"),
     UserController.deleteUser
   );
 

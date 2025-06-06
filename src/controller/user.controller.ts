@@ -287,8 +287,8 @@ class UserController {
 
       if (updatedUser?.status !== originalUser.status) {
         if (
-          updatedUser?.status === "accept" ||
-          updatedUser?.status === "reject"
+          updatedUser?.status === "مقبول" ||
+          updatedUser?.status === "مرفوض"
         ) {
           sendAccountStatusEmail(updatedUser);
         }

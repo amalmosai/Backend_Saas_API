@@ -126,14 +126,14 @@ class AuthController {
         );
       }
 
-      // if (authUser.status !== "accept") {
-      //   return next(
-      //     createCustomError(
-      //       "Account is still under review. Please wait for approval.",
-      //       HttpCode.FORBIDDEN
-      //     )
-      //   );
-      // }
+      if (authUser.status !== "مقبول") {
+        return next(
+          createCustomError(
+            "Account is still under review. Please wait for approval.",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
 
       const isPasswordCorrect = await comparePasswords(
         password,
@@ -160,6 +160,7 @@ class AuthController {
         sucess: true,
         data: authUser,
         message: "user sucessfully login",
+        token: token,
       });
     }
   );

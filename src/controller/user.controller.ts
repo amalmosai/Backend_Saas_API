@@ -286,12 +286,10 @@ class UserController {
       });
 
       if (updatedUser?.status !== originalUser.status) {
-        console.log("jhjhds");
         if (
           updatedUser?.status === "مقبول" ||
           updatedUser?.status === "مرفوض"
         ) {
-          console.log("jhjhd9999s");
           sendAccountStatusEmail(updatedUser);
         }
       }
@@ -441,6 +439,38 @@ class UserController {
           roleRemoved: role,
         },
         message: `Role '${role}' removed from ${updateResult.modifiedCount} users successfully`,
+      });
+    }
+  );
+
+  getUsersCount = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      console.log(":kkjskd");
+      const familyName = "Elsaqar";
+
+      const tenant = await Tenant.findOne({ familyName });
+      if (!tenant) {
+        return next(createCustomError("Tenant not found", HttpCode.NOT_FOUND));
+      }
+
+      const totalUsers = await User.countDocuments({ tenantId: tenant._id });
+
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const newUsers = await User.countDocuments({
+        tenantId: tenant._id,
+        createdAt: { $gte: sevenDaysAgo },
+      });
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: {
+          totalUsers,
+          newUsers,
+          newUsersTimeframe: "last 7 days",
+        },
+        message: "Users count retrieved successfully",
       });
     }
   );

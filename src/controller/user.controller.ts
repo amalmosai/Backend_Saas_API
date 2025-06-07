@@ -445,7 +445,6 @@ class UserController {
 
   getUsersCount = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      console.log(":kkjskd");
       const familyName = "Elsaqar";
 
       const tenant = await Tenant.findOne({ familyName });

@@ -51,4 +51,8 @@ router
     AdvertisementController.updateAdvertisementById
   );
 
+router
+  .route("/all/count")
+  .get(authenticateUser, AdvertisementController.getAdvertisementCount);
+
 export default router;

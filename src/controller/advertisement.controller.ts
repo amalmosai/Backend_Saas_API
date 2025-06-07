@@ -189,6 +189,18 @@ class AdvertisementController {
       });
     }
   );
+
+  getAdvertisementCount = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const totalAdvertisements = await Advertisement.countDocuments();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: totalAdvertisements,
+        message: "Advertisement count retrieved successfully",
+      });
+    }
+  );
 }
 
 export default new AdvertisementController();

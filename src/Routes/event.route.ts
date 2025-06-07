@@ -38,4 +38,6 @@ router
     EventController.updateEventById
   );
 
+router.route("/stats/overview").get(EventController.getEventOverview);
+
 export default router;

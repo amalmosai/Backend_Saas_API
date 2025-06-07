@@ -180,6 +180,45 @@ class EventController {
       });
     }
   );
+
+  getEventOverview = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const currentDate = new Date();
+
+      const totalEvents = await Event.countDocuments();
+
+      const endedEvents = await Event.countDocuments({
+        $or: [
+          { endDate: { $lt: currentDate } },
+          {
+            startDate: { $lte: currentDate },
+            endDate: null,
+          },
+        ],
+      });
+
+      const upcomingEvent = await Event.findOne({
+        startDate: { $gt: currentDate },
+      })
+        .sort({ startDate: 1 })
+        .populate("userId")
+        .lean();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: {
+          counts: {
+            total: totalEvents,
+            ended: endedEvents,
+            upcoming: totalEvents - endedEvents,
+          },
+          nextEvent: upcomingEvent || null,
+          asOf: currentDate.toISOString(),
+        },
+        message: "Event overview retrieved successfully",
+      });
+    }
+  );
 }
 
 export default new EventController();

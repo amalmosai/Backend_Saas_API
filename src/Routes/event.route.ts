@@ -4,6 +4,8 @@ import { authenticateUser, authorizePermission } from "../middlewares/auth";
 
 const router = express.Router();
 
+router.route("/stats").get(EventController.getEventOverview);
+
 router
   .route("/")
   .post(
@@ -37,7 +39,5 @@ router
     authorizePermission("مناسبه", "update"),
     EventController.updateEventById
   );
-
-router.route("/stats/overview").get(EventController.getEventOverview);
 
 export default router;

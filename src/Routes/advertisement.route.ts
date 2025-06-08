@@ -6,6 +6,10 @@ import { upload } from "../middlewares/uploadImage";
 const router = express.Router();
 
 router
+  .route("/stats")
+  .get(authenticateUser, AdvertisementController.getAdvertisementStats);
+
+router
   .route("/")
   .post(
     authenticateUser,
@@ -50,9 +54,5 @@ router
     upload.single("image"),
     AdvertisementController.updateAdvertisementById
   );
-
-router
-  .route("/all/stats")
-  .get(authenticateUser, AdvertisementController.getAdvertisementStats);
 
 export default router;

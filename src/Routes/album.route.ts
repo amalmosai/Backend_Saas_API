@@ -5,6 +5,8 @@ import { upload } from "../middlewares/uploadImage";
 
 const router = express.Router();
 
+router.route("/stats").get(authenticateUser, AlbumController.getAlbumStats);
+
 router
   .route("/")
   .post(
@@ -53,7 +55,4 @@ router
     authorizePermission("معرض الصور", "update"),
     AlbumController.deleteImageFromAlbum
   );
-
-router.route("/all/stats").get(authenticateUser, AlbumController.getAlbumStats);
-
 export default router;

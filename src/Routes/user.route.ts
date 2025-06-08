@@ -4,6 +4,18 @@ import { authenticateUser, authorizePermission } from "../middlewares/auth";
 
 const router = express.Router();
 
+router.route("/roles").get(authenticateUser, UserController.getAllRoles);
+
+router
+  .route("/role")
+  .delete(authenticateUser, UserController.deleteRoleFromAllUsers);
+
+router.route("/stats").get(authenticateUser, UserController.getUsersStats);
+
+router
+  .route("/authUser")
+  .post(authenticateUser, UserController.getUserAuthuser);
+
 router
   .route("/")
   .post(
@@ -33,17 +45,7 @@ router
 router.route("/:id").patch(authenticateUser, UserController.updateUser);
 
 router
-  .route("/authUser")
-  .post(authenticateUser, UserController.getUserAuthuser);
-
-router.route("/roles").get(authenticateUser, UserController.getAllRoles);
-
-router.route("/delete/role").delete(UserController.deleteRoleFromAllUsers);
-
-router
   .route("/:id/permissions")
   .patch(authenticateUser, UserController.updatePermissions);
-
-router.route("/all/stats").get(authenticateUser, UserController.getUsersStats);
 
 export default router;

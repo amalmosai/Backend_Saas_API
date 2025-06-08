@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../middlewares/asynHandler";
 import Member from "../models/member.model";
 import { HttpCode, createCustomError } from "../errors/customError";
+import User from "../models/user.model";
+import mongoose from "mongoose";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -242,13 +244,30 @@ class MemberController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
 
-      const deletedMember = await Member.findByIdAndDelete(id);
-      if (!deletedMember) {
-        return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      const member = await Member.findById(id).session(session);
+      if (!member) {
+        await session.abortTransaction();
+        session.endSession();
+        throw createCustomError("Member not found", HttpCode.NOT_FOUND);
       }
+
+      if (member.userId) {
+        await User.findByIdAndDelete(member.userId).session(session);
+      }
+
+      await Member.findByIdAndDelete(id).session(session);
+
+      await session.commitTransaction();
+      session.endSession();
+
       res.status(HttpCode.OK).json({
         success: true,
-        message: "Member deleted successfully",
+        message: member.userId
+          ? "Member and user deleted successfully"
+          : "Member deleted successfully",
         data: null,
       });
     }

@@ -44,6 +44,6 @@ router
   .route("/:id/permissions")
   .patch(authenticateUser, UserController.updatePermissions);
 
-router.route("/all/count").get(authenticateUser, UserController.getUsersCount);
+router.route("/all/stats").get(authenticateUser, UserController.getUsersStats);
 
 export default router;

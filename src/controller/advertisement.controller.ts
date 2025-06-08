@@ -190,7 +190,7 @@ class AdvertisementController {
     }
   );
 
-  getAdvertisementCount = asyncWrapper(
+  getAdvertisementStats = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const totalAdvertisements = await Advertisement.countDocuments();
 

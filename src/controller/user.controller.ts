@@ -443,7 +443,7 @@ class UserController {
     }
   );
 
-  getUsersCount = asyncWrapper(
+  getUsersStats = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const familyName = "Elsaqar";
 

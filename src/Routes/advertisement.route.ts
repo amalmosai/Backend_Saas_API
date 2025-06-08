@@ -52,7 +52,7 @@ router
   );
 
 router
-  .route("/all/count")
-  .get(authenticateUser, AdvertisementController.getAdvertisementCount);
+  .route("/all/stats")
+  .get(authenticateUser, AdvertisementController.getAdvertisementStats);
 
 export default router;

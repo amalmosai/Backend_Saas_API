@@ -231,6 +231,39 @@ class AlbumController {
       });
     }
   );
+
+  getAlbumStats = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const totalAlbums = await Album.countDocuments();
+
+      const totalImages = await Image.countDocuments();
+
+      const days = parseInt(req.query.days as string) || 7;
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - days);
+
+      const newAlbums = await Album.find({
+        createdAt: { $gte: recentDate },
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate("createdBy");
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: {
+          counts: {
+            totalAlbums,
+            totalImages,
+            newAlbums: newAlbums.length,
+          },
+          recentAlbums: newAlbums,
+          timeframe: `last ${days} days`,
+        },
+        message: "Album statistics retrieved successfully",
+      });
+    }
+  );
 }
 
 export default new AlbumController();

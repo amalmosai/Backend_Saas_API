@@ -53,4 +53,7 @@ router
     authorizePermission("معرض الصور", "update"),
     AlbumController.deleteImageFromAlbum
   );
+
+router.route("/all/stats").get(authenticateUser, AlbumController.getAlbumStats);
+
 export default router;

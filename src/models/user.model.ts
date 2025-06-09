@@ -1,6 +1,6 @@
 import { Schema, model, Types } from "mongoose";
 import IUser, { IUserDocument } from "../Interfaces/user.interface";
-import { defaultPermissions, permissionSchema } from "./permission.model";
+import { actionPermissionSchema } from "./permission.model";
 import Member from "./member.model";
 import { NextFunction } from "express";
 
@@ -74,8 +74,7 @@ const userSchema = new Schema<IUserDocument>(
       type: String,
     },
     permissions: {
-      type: [permissionSchema],
-      default: defaultPermissions,
+      type: [actionPermissionSchema],
     },
     resetPasswordToken: {
       type: String,

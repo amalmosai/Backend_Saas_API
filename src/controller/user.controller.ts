@@ -4,13 +4,7 @@ import User from "../models/user.model";
 import { HttpCode, createCustomError } from "../errors/customError";
 import { hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
-import {
-  defaultPermissions,
-  familyOlders,
-  financialManager,
-  socialManager,
-  superAdminPermissions,
-} from "../models/permission.model";
+import Permission from "../models/permission.model";
 import { sendAccountStatusEmail } from "../services/email.service";
 import Member from "../models/member.model";
 
@@ -42,6 +36,24 @@ class UserController {
         address,
       } = req.body;
 
+      if (
+        role === "مدير النظام" ||
+        (Array.isArray(role) && role.includes("مدير النظام"))
+      ) {
+        const existingSuperAdmin = await User.findOne({
+          role: "مدير النظام",
+        });
+
+        if (existingSuperAdmin) {
+          return next(
+            createCustomError(
+              "Only one Super Admin (مدير النظام) can exist in the system",
+              HttpCode.CONFLICT
+            )
+          );
+        }
+      }
+
       const emailExists = await User.findOne({ email });
 
       if (emailExists) {
@@ -67,27 +79,14 @@ class UserController {
         }
       }
 
+      const permissionRole = await Permission.findOne({ role });
       let permission;
-      switch (role) {
-        case "مدير النظام":
-          permission = superAdminPermissions;
-          status = "مقبول";
-          break;
-        case "مدير اللجنه الاجتماعية":
-          permission = socialManager;
-          status = "مقبول";
-          break;
-        case "مدير اللجنه الماليه":
-          permission = financialManager;
-          status = "مقبول";
-          break;
-        case "كبار الاسرة":
-          permission = familyOlders;
-          status = "مقبول";
-          break;
-        default:
-          permission = defaultPermissions;
-          status = status ? status : "قيد الانتظار";
+
+      permission = permissionRole?.permissions;
+
+      if (!role) {
+        role = "مستخدم";
+        permission = await Permission.findOne({ role });
       }
 
       const hashedPwd = await hashPassword(password);
@@ -104,11 +103,12 @@ class UserController {
         address,
       });
 
-      if (Array.isArray(role)) {
-        for (const r of role) user.addRole(r);
-      } else if (typeof role === "string") {
-        user.addRole(role);
+      if (req.body.role) {
+        user.role = Array.isArray(req.body.role)
+          ? req.body.role
+          : [req.body.role];
       }
+
       await user.save();
 
       const femaleRelationships = new Set(["زوجة", "ابنة"]);
@@ -249,7 +249,7 @@ class UserController {
 
       const loggedInUserId = req.user?.id;
 
-      let updateData = req.body;
+      let updateData = { ...req.body };
 
       const originalUser = await User.findById(id);
 
@@ -271,13 +271,18 @@ class UserController {
       }
 
       if (req.body.role) {
-        const { role } = req.body;
-        const currentRoles = originalUser.role || [];
-        if (Array.isArray(role)) {
-          updateData.role = [...new Set([...currentRoles, ...role])];
-        } else if (typeof role === "string") {
-          updateData.role = [...new Set([...currentRoles, role])];
-        }
+        const roles = Array.isArray(req.body.role)
+          ? req.body.role
+          : [req.body.role];
+
+        updateData.role = roles;
+
+        const permission =
+          (await Permission.findOne({
+            role: { $in: roles },
+          })) ?? (await Permission.findOne({ role: "مستخدم" }));
+
+        updateData.permissions = permission?.permissions;
       }
 
       const updatedUser = await User.findByIdAndUpdate(id, updateData, {

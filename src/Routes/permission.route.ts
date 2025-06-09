@@ -7,11 +7,23 @@ import PermissionsController from "../controller/permission.controller";
 const router = express.Router();
 
 router
-  .route("/")
+  .route("/check")
   .post(
     authenticateUser,
     authorizePermissionFromBody(),
     PermissionsController.checkPermission
   );
+
+router
+  .route("/")
+  .post(authenticateUser, PermissionsController.createPermission);
+
+router
+  .route("/")
+  .get(authenticateUser, PermissionsController.getAllPermissions);
+
+router
+  .route("/:role")
+  .delete(authenticateUser, PermissionsController.deletePermission);
 
 export default router;

@@ -1,138 +1,28 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export const actionPermissions = {
-  view: { type: Boolean, default: false },
-  update: { type: Boolean, default: false },
-  delete: { type: Boolean, default: false },
-  create: { type: Boolean, default: false },
-};
-
-export const defaultPermissions = [
+export const actionPermissionSchema = new Schema(
   {
-    entity: "مناسبه",
-    view: false,
-    update: false,
-    delete: false,
-    create: false,
-  },
-  {
-    entity: "عضو",
-    view: false,
-    update: false,
-    delete: false,
-    create: false,
-  },
-  {
-    entity: "مستخدم",
-    view: false,
-    update: false,
-    delete: false,
-    create: false,
-  },
-  {
-    entity: "معرض الصور",
-    view: false,
-    update: false,
-    delete: false,
-    create: false,
-  },
-  {
-    entity: "ماليه",
-    view: false,
-    update: false,
-    delete: false,
-    create: false,
-  },
-  {
-    entity: "اعلان",
-    view: false,
-    update: false,
-    delete: false,
-    create: false,
-  },
-];
-
-export const superAdminPermissions = [
-  { entity: "مناسبه", view: true, update: true, delete: true, create: true },
-  {
-    entity: "عضو",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-  {
-    entity: "مستخدم",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-  {
-    entity: "معرض الصور",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-  {
-    entity: "ماليه",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-  {
-    entity: "اعلان",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-];
-
-export const financialManager = [
-  {
-    entity: "ماليه",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-];
-
-export const socialManager = [
-  { entity: "مناسبه", view: true, update: true, delete: true, create: true },
-  {
-    entity: "معرض الصور",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-  {
-    entity: "اعلان",
-    view: true,
-    update: true,
-    delete: true,
-    create: true,
-  },
-];
-
-export const familyOlders = [
-  {
-    entity: "ماليه",
-    view: true,
-    update: false,
-    delete: false,
-    create: false,
-  },
-];
-
-export const permissionSchema = new Schema(
-  {
-    entity: { type: String, required: true },
-    ...actionPermissions,
+    entity: {
+      type: String,
+      required: true,
+      enum: ["مناسبه", "عضو", "مستخدم", "معرض الصور", "ماليه", "اعلان"],
+    },
+    view: { type: Boolean, default: false },
+    update: { type: Boolean, default: false },
+    delete: { type: Boolean, default: false },
+    create: { type: Boolean, default: false },
   },
   { _id: false }
 );
+
+export const permissionSchema = new Schema(
+  {
+    role: { type: String },
+    permissions: [actionPermissionSchema],
+  },
+  { timestamps: true }
+);
+
+const Permission = mongoose.model("permission", permissionSchema);
+
+export default Permission;

@@ -4,8 +4,6 @@ import { authenticateUser, authorizePermission } from "../middlewares/auth";
 
 const router = express.Router();
 
-router.route("/roles").get(authenticateUser, UserController.getAllRoles);
-
 router
   .route("/role")
   .delete(authenticateUser, UserController.deleteRoleFromAllUsers);

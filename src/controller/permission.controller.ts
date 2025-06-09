@@ -86,6 +86,15 @@ class PermissionsController {
       });
     }
   );
+
+  getAllRoles = asyncWrapper(async (req: Request, res: Response) => {
+    const roles = await Permission.distinct("role");
+    res.status(HttpCode.OK).json({
+      success: true,
+      data: roles,
+      message: "Roles retrieved successfully",
+    });
+  });
 }
 
 export default new PermissionsController();

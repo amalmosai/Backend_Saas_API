@@ -357,26 +357,6 @@ class UserController {
     }
   );
 
-  getAllRoles = asyncWrapper(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const users = await User.find({}, "role");
-
-      const roleSet = new Set<string>();
-
-      for (const user of users) {
-        if (Array.isArray(user.role)) {
-          user.role.forEach((role) => roleSet.add(role));
-        }
-      }
-
-      res.status(HttpCode.OK).json({
-        success: true,
-        data: [...roleSet],
-        message: "All unique roles retrieved successfully",
-      });
-    }
-  );
-
   deleteRoleFromAllUsers = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       console.log("user");

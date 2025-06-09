@@ -13,6 +13,7 @@ router
     authorizePermissionFromBody(),
     PermissionsController.checkPermission
   );
+router.route("/roles").get(authenticateUser, PermissionsController.getAllRoles);
 
 router
   .route("/")

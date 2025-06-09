@@ -26,3 +26,48 @@ export const permissionSchema = new Schema(
 const Permission = mongoose.model("permission", permissionSchema);
 
 export default Permission;
+
+export const defaultPermissions = [
+  {
+    entity: "مناسبه",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+  {
+    entity: "عضو",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+  {
+    entity: "مستخدم",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+  {
+    entity: "معرض الصور",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+  {
+    entity: "ماليه",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+  {
+    entity: "اعلان",
+    view: false,
+    update: false,
+    delete: false,
+    create: false,
+  },
+];

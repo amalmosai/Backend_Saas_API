@@ -264,7 +264,16 @@ class UserController {
       ) {
         return next(
           createCustomError(
-            "You are not allowed to update this account",
+            "غير مسموح بتعديل دور مدير النظام",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
+
+      if (req.body.role === "مدير النظام") {
+        return next(
+          createCustomError(
+            "غير مسموح بتعديل دور مدير النظام",
             HttpCode.FORBIDDEN
           )
         );

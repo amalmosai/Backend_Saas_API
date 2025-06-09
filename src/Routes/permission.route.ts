@@ -25,10 +25,10 @@ router
 
 router
   .route("/:role")
-  .delete(authenticateUser, PermissionsController.deletePermission);
+  .delete(authenticateUser, PermissionsController.deleteRoleAndUpdateUsers);
 
 router
-  .route("/:role/permission")
+  .route("/:role")
   .patch(authenticateUser, PermissionsController.updatePermissionForRole);
 
 export default router;

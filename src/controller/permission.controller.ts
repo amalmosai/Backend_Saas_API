@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
-import Permission from "../models/permission.model";
+import Permission, { defaultPermissions } from "../models/permission.model";
 import User from "../models/user.model";
+import mongoose from "mongoose";
 
 class PermissionsController {
   checkPermission = asyncWrapper(
@@ -17,12 +18,23 @@ class PermissionsController {
 
   createPermission = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { role, permissions } = req.body;
+      let { role, permissions } = req.body;
 
       if (!role) {
         return next(
           createCustomError("Role is required", HttpCode.BAD_REQUEST)
         );
+      }
+
+      const roles = [
+        "كبار الاسرة",
+        "مدير اللجنه الاجتماعية",
+        "مدير اللجنه الماليه",
+        "مدير النظام",
+      ];
+
+      if (!roles.includes(role)) {
+        permissions = defaultPermissions;
       }
 
       const existingPermission = await Permission.findOne({ role });
@@ -69,25 +81,6 @@ class PermissionsController {
     });
   });
 
-  deletePermission = asyncWrapper(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { role } = req.params;
-
-      const deletedPermission = await Permission.findOneAndDelete({ role });
-      if (!deletedPermission) {
-        return next(
-          createCustomError("Permission not found", HttpCode.NOT_FOUND)
-        );
-      }
-
-      res.status(HttpCode.OK).json({
-        success: true,
-        data: null,
-        message: "Permission deleted successfully",
-      });
-    }
-  );
-
   getAllRoles = asyncWrapper(async (req: Request, res: Response) => {
     const roles = await Permission.distinct("role");
     res.status(HttpCode.OK).json({
@@ -102,6 +95,11 @@ class PermissionsController {
       const { role } = req.params;
       const { entity, action, value } = req.body;
 
+      if (role === "مدير النظام") {
+        return next(
+          createCustomError("غير مسموح بتحديث مدير النظام", HttpCode.FORBIDDEN)
+        );
+      }
       const allowedEntities = [
         "مناسبه",
         "عضو",
@@ -163,6 +161,65 @@ class PermissionsController {
         success: true,
         message: `Permission '${action}' for '${entity}' updated successfully`,
         data: permission.permissions,
+      });
+    }
+  );
+
+  deleteRoleAndUpdateUsers = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { role } = req.params;
+
+      if (role === "مدير النظام" || role === "مستخدم") {
+        return next(
+          createCustomError(
+            "غير مسموح بحذف مديرالنظام او مستخدم",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
+
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      const roleExists = await Permission.exists({ role }).session(session);
+      if (!roleExists) {
+        await session.abortTransaction();
+        return next(createCustomError("Role not found", HttpCode.NOT_FOUND));
+      }
+
+      const defaultUserPermissions =
+        (await Permission.findOne({ role: "مستخدم" }).session(session))
+          ?.permissions || defaultPermissions;
+
+      const usersToUpdate = await User.find({ role }).session(session);
+
+      const bulkOps = usersToUpdate.map((user) => ({
+        updateOne: {
+          filter: { _id: user._id },
+          update: {
+            $set: {
+              role: ["مستخدم"],
+              permissions: defaultUserPermissions,
+            },
+          },
+        },
+      }));
+
+      if (bulkOps.length > 0) {
+        await User.bulkWrite(bulkOps, { session });
+      }
+
+      await Permission.deleteOne({ role }).session(session);
+
+      await session.commitTransaction();
+      session.endSession();
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: `Role '${role}' deleted and ${usersToUpdate.length} users updated to 'مستخدم'`,
+        data: {
+          updatedUsersCount: usersToUpdate.length,
+        },
       });
     }
   );

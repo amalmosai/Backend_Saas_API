@@ -27,4 +27,8 @@ router
   .route("/:role")
   .delete(authenticateUser, PermissionsController.deletePermission);
 
+router
+  .route("/:role/permission")
+  .patch(authenticateUser, PermissionsController.updatePermissionForRole);
+
 export default router;

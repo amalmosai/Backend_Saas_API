@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import Permission from "../models/permission.model";
+import User from "../models/user.model";
 
 class PermissionsController {
   checkPermission = asyncWrapper(
@@ -95,6 +96,76 @@ class PermissionsController {
       message: "Roles retrieved successfully",
     });
   });
+
+  updatePermissionForRole = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { role } = req.params;
+      const { entity, action, value } = req.body;
+
+      const allowedEntities = [
+        "مناسبه",
+        "عضو",
+        "مستخدم",
+        "معرض الصور",
+        "ماليه",
+        "اعلان",
+      ];
+
+      const allowedActions = ["view", "create", "update", "delete"];
+
+      if (!allowedEntities.includes(entity)) {
+        return next(createCustomError("Invalid entity", HttpCode.BAD_REQUEST));
+      }
+
+      if (!allowedActions.includes(action)) {
+        return next(createCustomError("Invalid action", HttpCode.BAD_REQUEST));
+      }
+
+      if (typeof value !== "boolean") {
+        return next(
+          createCustomError("Value must be a boolean", HttpCode.BAD_REQUEST)
+        );
+      }
+
+      const permission = await Permission.findOne({ role });
+      if (!permission) {
+        return next(
+          createCustomError("Permission not found", HttpCode.NOT_FOUND)
+        );
+      }
+
+      const entityPermission: any = permission.permissions.find(
+        (perm: any) => perm.entity === entity
+      );
+
+      if (entityPermission) {
+        entityPermission[action] = value;
+      } else {
+        permission.permissions.push({ entity, [action]: value });
+      }
+
+      await permission.save();
+
+      const usersWithRole = await User.find({ role });
+      for (const user of usersWithRole) {
+        const userEntityPermission = user.permissions.find(
+          (perm: any) => perm.entity === entity
+        );
+        if (userEntityPermission) {
+          userEntityPermission[action] = value;
+        } else {
+          user.permissions.push({ entity, [action]: value });
+        }
+        await user.save();
+      }
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: `Permission '${action}' for '${entity}' updated successfully`,
+        data: permission.permissions,
+      });
+    }
+  );
 }
 
 export default new PermissionsController();

@@ -247,6 +247,7 @@ class AlbumController {
       })
         .sort({ createdAt: -1 })
         .limit(5)
+        .populate("images")
         .populate("createdBy");
 
       res.status(HttpCode.OK).json({

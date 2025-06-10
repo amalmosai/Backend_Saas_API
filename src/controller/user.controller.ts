@@ -7,6 +7,7 @@ import Tenant from "../models/tenant.model";
 import Permission from "../models/permission.model";
 import { sendAccountStatusEmail } from "../services/email.service";
 import Member from "../models/member.model";
+import { notifyUsersWithPermission } from "../utils/notify";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -132,6 +133,23 @@ class UserController {
       user.memberId = newMember._id;
       await user.save();
 
+      await notifyUsersWithPermission(
+        { entity: "مستخدم", action: "view", value: true },
+        {
+          sender: { id: req?.user.id, name: `${email.split("@")[0]}` },
+          message: "تم إنشاء مستخدم جديد",
+          action: "create",
+          entity: { type: "مستخدم", id: user._id },
+          metadata: {
+            // deepLink: `/users/${user._id}`,
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
+
       res.status(HttpCode.CREATED).json({
         success: true,
         data: {
@@ -234,6 +252,21 @@ class UserController {
       }
 
       await userToDelete.deleteOne();
+      await notifyUsersWithPermission(
+        { entity: "مستخدم", action: "delete", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم حذف مستخدم",
+          action: "delete",
+          entity: { type: "مستخدم" },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,
@@ -307,6 +340,23 @@ class UserController {
           sendAccountStatusEmail(updatedUser);
         }
       }
+
+      await notifyUsersWithPermission(
+        { entity: "مستخدم", action: "update", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم تعديل مستخدم",
+          action: "create",
+          entity: { type: "مستخدم", id: updatedUser?._id },
+          metadata: {
+            deepLink: `/users/${updatedUser?._id}`,
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,

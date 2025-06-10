@@ -194,10 +194,30 @@ class AdvertisementController {
     async (req: Request, res: Response, next: NextFunction) => {
       const totalAdvertisements = await Advertisement.countDocuments();
 
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const newAdvertisementsLast7Days = await Advertisement.countDocuments({
+        createdAt: { $gte: sevenDaysAgo },
+      });
+
+      const newAdvertisements = await Advertisement.find({
+        createdAt: { $gte: sevenDaysAgo },
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate("userId");
+
       res.status(HttpCode.OK).json({
         success: true,
-        data: totalAdvertisements,
-        message: "Advertisement count retrieved successfully",
+        data: {
+          totalAdvertisements,
+          newAdvertisementsLast7Days,
+          newAdvertisements,
+          last7DaysStart: sevenDaysAgo,
+          last7DaysEnd: new Date(),
+        },
+        message: "Advertisement statistics retrieved successfully",
       });
     }
   );

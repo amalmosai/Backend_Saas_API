@@ -87,7 +87,7 @@ app.use("/api/v1/financial", financialRoute);
 app.use("/api/v1/event", eventRoute);
 app.use("/api/v1/advertisement", advertisementRoute);
 
-// Health check endpoint
+// check endpoint
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "success",

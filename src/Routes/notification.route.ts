@@ -28,6 +28,10 @@ router
   .get(authenticateUser, NotificationController.getNotifications);
 
 router
+  .route("/:entityType")
+  .get(authenticateUser, NotificationController.getShowStatusByEntityType);
+
+router
   .route("/:id/read")
   .patch(authenticateUser, NotificationController.markAsRead);
 

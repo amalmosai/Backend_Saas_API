@@ -143,6 +143,28 @@ class NotificationController {
       });
     }
   );
+
+  getShowStatusByEntityType = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { entityType } = req.params;
+      const notifications = await Notification.find({
+        "entity.type": entityType,
+        recipientId: req.user.id,
+      }).select("show");
+
+      const firstShowStatus = notifications[0].show;
+      const consistent = notifications.every((n) => n.show === firstShowStatus);
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: {
+          entityType,
+          show: firstShowStatus,
+          consistent,
+        },
+      });
+    }
+  );
 }
 
 export default new NotificationController();

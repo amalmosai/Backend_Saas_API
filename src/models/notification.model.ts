@@ -75,6 +75,10 @@ const NotificationSchema = new Schema<INotification>(
       enum: ["pending", "sent", "delivered", "failed"],
       default: "pending",
     },
+    show: {
+      type: Boolean,
+      default: false,
+    },
     isMobileDelivered: { type: Boolean, default: false },
     isEmailDelivered: { type: Boolean, default: false },
     isWebDelivered: { type: Boolean, default: false },

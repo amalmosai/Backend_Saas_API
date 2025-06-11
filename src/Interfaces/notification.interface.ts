@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import { Types } from "mongoose";
 
 interface UserReference {
   id: string;
@@ -33,6 +33,7 @@ export interface INotification {
     priority?: "low" | "medium" | "high";
   };
   status: "pending" | "sent" | "delivered" | "failed";
+  show?: boolean;
   isMobileDelivered?: boolean;
   isEmailDelivered?: boolean;
   isWebDelivered?: boolean;

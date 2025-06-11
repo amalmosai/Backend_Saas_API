@@ -1,8 +1,20 @@
 import express from "express";
 import NotificationController from "../controller/notification.controller";
-import { authenticateUser, authorizePermission } from "../middlewares/auth";
+import {
+  authenticateUser,
+  authorizePermission,
+  authorizeRoles,
+} from "../middlewares/auth";
 
 const router = express.Router();
+router
+  .route("/show-by-entity")
+  .patch(
+    authenticateUser,
+    authorizeRoles("مدير النظام"),
+    NotificationController.updateShowByEntityType
+  );
+
 router
   .route("/read-all")
   .patch(authenticateUser, NotificationController.markAllAsRead);

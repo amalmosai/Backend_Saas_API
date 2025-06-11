@@ -104,6 +104,45 @@ class NotificationController {
       });
     }
   );
+
+  updateShowByEntityType = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { show, entityType } = req.body;
+
+      const validEntityTypes = [
+        "مناسبه",
+        "عضو",
+        "اعلان",
+        "ماليه",
+        "معرض الصور",
+        "مستخدم",
+      ];
+      if (!validEntityTypes.includes(entityType)) {
+        return next(
+          createCustomError("Invalid entity type", HttpCode.BAD_REQUEST)
+        );
+      }
+
+      const result = await Notification.updateMany(
+        {
+          "entity.type": entityType,
+          recipientId: req.user.id,
+        },
+        { $set: { show: show } }
+      );
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        message: `Updated show status for ${entityType} notifications`,
+        data: {
+          entityType,
+          show,
+          matchedCount: result.matchedCount,
+          modifiedCount: result.modifiedCount,
+        },
+      });
+    }
+  );
 }
 
 export default new NotificationController();

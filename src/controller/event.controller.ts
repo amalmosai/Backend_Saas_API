@@ -8,6 +8,7 @@ import {
   validateDateRange,
   validateFutureDate,
 } from "../utils/dateValidator";
+import { notifyUsersWithPermission } from "../utils/notify";
 
 class EventController {
   createEvent = asyncWrapper(
@@ -40,6 +41,21 @@ class EventController {
         startDate: startDateObj,
         endDate: endDateObj,
       });
+      await notifyUsersWithPermission(
+        { entity: "مناسبه", action: "view", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم إنشاء مناسيه جديد",
+          action: "create",
+          entity: { type: "مناسبه", id: event?._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.CREATED).json({
         success: true,
@@ -120,6 +136,21 @@ class EventController {
 
       await event.deleteOne();
 
+      await notifyUsersWithPermission(
+        { entity: "مناسبه", action: "delete", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم حذف مناسبه",
+          action: "delete",
+          entity: { type: "مناسبه", id: event._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
       res.status(HttpCode.OK).json({
         success: true,
         data: null,
@@ -171,6 +202,22 @@ class EventController {
         { _id: eventId },
         updateData,
         { new: true }
+      );
+
+      await notifyUsersWithPermission(
+        { entity: "مناسبه", action: "update", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم تعديل مناسبه  ",
+          action: "update",
+          entity: { type: "مناسبه", id: updatedEvent?._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
       );
 
       res.status(HttpCode.OK).json({

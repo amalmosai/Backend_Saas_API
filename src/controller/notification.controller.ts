@@ -129,7 +129,6 @@ class NotificationController {
       const result = await Notification.updateMany(
         {
           "entity.type": entityType,
-          recipientId: req.user.id,
         },
         { $set: { show: show } }
       );

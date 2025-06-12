@@ -3,6 +3,7 @@ import Advertisement from "../models/advertisement.model";
 import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import mongoose from "mongoose";
+import { notifyUsersWithPermission } from "../utils/notify";
 
 class AdvertisementController {
   createAdvertisement = asyncWrapper(
@@ -32,6 +33,22 @@ class AdvertisementController {
         content,
         image,
       });
+
+      await notifyUsersWithPermission(
+        { entity: "اعلان", action: "view", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم إنشاء اعلان جديد",
+          action: "create",
+          entity: { type: "اعلان", id: advertisement._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.CREATED).json({
         success: true,
@@ -131,6 +148,22 @@ class AdvertisementController {
         { new: true }
       );
 
+      await notifyUsersWithPermission(
+        { entity: "اعلان", action: "update", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم تعديل اعلان  ",
+          action: "update",
+          entity: { type: "اعلان", id: advertisement._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
+
       res.status(HttpCode.OK).json({
         success: true,
         data: updatedAdvertisement,
@@ -158,6 +191,22 @@ class AdvertisementController {
       }
 
       await advertisement.deleteOne();
+
+      await notifyUsersWithPermission(
+        { entity: "اعلان", action: "delete", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم حذف اعلان",
+          action: "delete",
+          entity: { type: "اعلان", id: advertisement._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,

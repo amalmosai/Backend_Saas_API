@@ -4,6 +4,7 @@ import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import mongoose from "mongoose";
 import Image from "../models/image.model";
+import { notifyUsersWithPermission } from "../utils/notify";
 
 class AlbumController {
   createAlbum = asyncWrapper(
@@ -26,6 +27,22 @@ class AlbumController {
         description,
         createdBy: userId,
       });
+
+      await notifyUsersWithPermission(
+        { entity: "معرض الصور", action: "view", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم إنشاءالبوم جديد",
+          action: "create",
+          entity: { type: "معرض الصور", id: album._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.CREATED).json({
         success: true,
@@ -77,6 +94,22 @@ class AlbumController {
       }
 
       await album.deleteOne();
+
+      await notifyUsersWithPermission(
+        { entity: "معرض الصور", action: "delete", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: `تم حذف البوم `,
+          action: "delete",
+          entity: { type: "معرض الصور" },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,
@@ -149,6 +182,22 @@ class AlbumController {
         return next(createCustomError("Album not found", HttpCode.NOT_FOUND));
       }
 
+      await notifyUsersWithPermission(
+        { entity: "معرض الصور", action: "update", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: `${updatedAlbum.name} تم اضافة صورة الى البوم `,
+          action: "update",
+          entity: { type: "معرض الصور", id: updatedAlbum._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
+
       res.status(HttpCode.OK).json({
         success: true,
         message: "Image uploaded and added to album",
@@ -181,6 +230,22 @@ class AlbumController {
           path: "createdBy",
           select: "-password -permissions -_id ",
         });
+
+      await notifyUsersWithPermission(
+        { entity: "معرض الصور", action: "update", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: `${updatedAlbum?.name} تم تعديل البوم `,
+          action: "update",
+          entity: { type: "معرض الصور", id: updatedAlbum?._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,
@@ -223,6 +288,22 @@ class AlbumController {
       if (!deletedImage) {
         return next(createCustomError("Image not found", HttpCode.NOT_FOUND));
       }
+
+      await notifyUsersWithPermission(
+        { entity: "معرض الصور", action: "delete", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: `${updatedAlbum?.name} تم حذف صورة من البوم `,
+          action: "delete",
+          entity: { type: "معرض الصور", id: updatedAlbum._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,

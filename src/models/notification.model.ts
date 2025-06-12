@@ -41,7 +41,6 @@ const NotificationSchema = new Schema<INotification>(
       },
       name: {
         type: String,
-        required: true,
       },
       avatar: {
         type: String,

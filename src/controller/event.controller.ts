@@ -45,7 +45,7 @@ class EventController {
         { entity: "مناسبه", action: "view", value: true },
         {
           sender: { id: req?.user.id },
-          message: "تم إنشاء مناسيه جديد",
+          message: "تم إنشاء مناسبه جديد",
           action: "create",
           entity: { type: "مناسبه", id: event?._id },
           metadata: {

@@ -38,7 +38,7 @@ class AdvertisementController {
         { entity: "اعلان", action: "view", value: true },
         {
           sender: { id: req?.user.id },
-          message: "تم إنشاء اعلان جديد",
+          message: "تم إنشاء إعلان جديد",
           action: "create",
           entity: { type: "اعلان", id: advertisement._id },
           metadata: {
@@ -152,7 +152,7 @@ class AdvertisementController {
         { entity: "اعلان", action: "update", value: true },
         {
           sender: { id: req?.user.id },
-          message: "تم تعديل اعلان  ",
+          message: "تم تعديل إعلان  ",
           action: "update",
           entity: { type: "اعلان", id: advertisement._id },
           metadata: {
@@ -196,7 +196,7 @@ class AdvertisementController {
         { entity: "اعلان", action: "delete", value: true },
         {
           sender: { id: req?.user.id },
-          message: "تم حذف اعلان",
+          message: "تم حذف إعلان",
           action: "delete",
           entity: { type: "اعلان", id: advertisement._id },
           metadata: {

@@ -149,7 +149,6 @@ class NotificationController {
       const { entityType } = req.params;
       const notifications = await Notification.find({
         "entity.type": entityType,
-        recipientId: req.user.id,
       }).select("show");
 
       const firstShowStatus = notifications[0].show;

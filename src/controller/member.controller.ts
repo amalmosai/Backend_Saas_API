@@ -4,6 +4,7 @@ import Member from "../models/member.model";
 import { HttpCode, createCustomError } from "../errors/customError";
 import User from "../models/user.model";
 import mongoose from "mongoose";
+import { notifyUsersWithPermission } from "../utils/notify";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
@@ -106,6 +107,22 @@ class MemberController {
 
       const member = await Member.create(req.body);
 
+      await notifyUsersWithPermission(
+        { entity: "عضو", action: "view", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم إنشاءعضو جديد",
+          action: "create",
+          entity: { type: "عضو", id: member?._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
+
       res.status(HttpCode.CREATED).json({
         success: true,
         message: "Member created successfully",
@@ -168,6 +185,22 @@ class MemberController {
         .populate("userId")
         .populate("husband")
         .populate("wives");
+
+      await notifyUsersWithPermission(
+        { entity: "عضو", action: "update", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم تعديل عضو",
+          action: "update",
+          entity: { type: "عضو", id: updatedMember?._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,
@@ -262,6 +295,22 @@ class MemberController {
 
       await session.commitTransaction();
       session.endSession();
+
+      await notifyUsersWithPermission(
+        { entity: "عضو", action: "delete", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم حذف عضو",
+          action: "delete",
+          entity: { type: "عضو" },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,

@@ -12,8 +12,12 @@ class NotificationController {
       const limit = parseInt(req.query.limit as string) || 10;
       const skip = (page - 1) * limit;
 
+      const baseQuery = {
+        recipientId: req.user.id,
+        show: true,
+      };
       const [notifications, total] = await Promise.all([
-        Notification.find({ recipientId: req.user.id })
+        Notification.find(baseQuery)
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limit)
@@ -21,7 +25,6 @@ class NotificationController {
           .lean(),
         Notification.countDocuments({ recipientId: req.user._id }),
       ]);
-
       res.status(HttpCode.OK).json({
         success: true,
         data: notifications,

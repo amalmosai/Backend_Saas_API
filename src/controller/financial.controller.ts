@@ -3,6 +3,7 @@ import Transaction from "../models/financial.model";
 import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import mongoose from "mongoose";
+import { notifyUsersWithPermission } from "../utils/notify";
 
 class TransactionController {
   createTransaction = asyncWrapper(
@@ -35,6 +36,22 @@ class TransactionController {
         category,
         createdBy: userId,
       });
+
+      await notifyUsersWithPermission(
+        { entity: "ماليه", action: "view", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم إنشاء تقرير مالي جديد",
+          action: "create",
+          entity: { type: "ماليه", id: transaction?._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.CREATED).json({
         success: true,
@@ -169,6 +186,22 @@ class TransactionController {
         { new: true }
       );
 
+      await notifyUsersWithPermission(
+          { entity: "ماليه", action: "update", value: true },
+          {
+            sender: { id: req?.user.id },
+            message: "تم تعديل تقرير مالي",
+            action: "update",
+            entity: { type: "ماليه", id: updatedTransaction?._id },
+            metadata: {
+              priority: "medium",
+            },
+            status: "sent",
+            read: false,
+            readAt: null,
+          }
+        );
+
       res.status(HttpCode.OK).json({
         success: true,
         data: updatedTransaction,
@@ -191,6 +224,22 @@ class TransactionController {
       }
 
       const result = await Transaction.deleteMany();
+
+      await notifyUsersWithPermission(
+        { entity: "ماليه", action: "delete", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم حذف تقرير مالي",
+          action: "delete",
+          entity: { type: "ماليه" },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,

@@ -20,6 +20,8 @@ class MemberController {
         gender,
         husband,
         wives,
+        parents,
+        children,
       } = req.body;
 
       if (req.file?.path) {
@@ -105,6 +107,23 @@ class MemberController {
         }
       }
 
+      if (parents?.father || parents?.mother) {
+        req.body.parents = {};
+        if (parents.father && mongoose.Types.ObjectId.isValid(parents.father)) {
+          req.body.parents.father = parents.father;
+        }
+        if (parents.mother && mongoose.Types.ObjectId.isValid(parents.mother)) {
+          req.body.parents.mother = parents.mother;
+        }
+      }
+
+      if (
+        children &&
+        typeof children === "string" &&
+        mongoose.Types.ObjectId.isValid(children)
+      ) {
+        req.body.children = [children];
+      }
       const member = await Member.create(req.body);
 
       await notifyUsersWithPermission(
@@ -142,6 +161,8 @@ class MemberController {
         gender,
         husband,
         wives,
+        parents,
+        children,
       } = req.body;
 
       const member = await Member.findById(id);
@@ -178,13 +199,46 @@ class MemberController {
         }
       }
 
-      const updatedMember = await Member.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true,
-      })
-        .populate("userId")
-        .populate("husband")
-        .populate("wives");
+      if (parents?.father || parents?.mother) {
+        req.body.parents = {};
+        if (parents.father && mongoose.Types.ObjectId.isValid(parents.father)) {
+          req.body.parents.father = parents.father;
+        }
+        if (parents.mother && mongoose.Types.ObjectId.isValid(parents.mother)) {
+          req.body.parents.mother = parents.mother;
+        }
+      }
+
+      let updatedMember;
+      if (
+        children &&
+        typeof children === "string" &&
+        mongoose.Types.ObjectId.isValid(children)
+      ) {
+        updatedMember = await Member.findByIdAndUpdate(
+          id,
+          {
+            $addToSet: { children },
+            $set: req.body,
+          },
+          { new: true, runValidators: true }
+        )
+          .populate("userId")
+          .populate("husband")
+          .populate("wives")
+          .populate("parents")
+          .populate("children");
+      } else {
+        updatedMember = await Member.findByIdAndUpdate(id, req.body, {
+          new: true,
+          runValidators: true,
+        })
+          .populate("userId")
+          .populate("husband")
+          .populate("wives")
+          .populate("parents")
+          .populate("children");
+      }
 
       await notifyUsersWithPermission(
         { entity: "عضو", action: "update", value: true },
@@ -234,6 +288,9 @@ class MemberController {
         .populate("userId")
         .populate("husband")
         .populate("wives")
+        .populate("wives")
+        .populate("parents")
+        .populate("children")
         .skip(skip)
         .limit(limit);
 
@@ -260,7 +317,9 @@ class MemberController {
       const member = await Member.findById(id)
         .populate("userId")
         .populate("husband")
-        .populate("wives");
+        .populate("wives")
+        .populate("parents")
+        .populate("children");
 
       if (!member) {
         return next(createCustomError("Member not found", HttpCode.NOT_FOUND));

@@ -29,4 +29,9 @@ export default interface IMember {
   wives?: Types.ObjectId[]; //for male
   isUser?: boolean;
   image?: string;
+  parents?: {
+    father?: Types.ObjectId;
+    mother?: Types.ObjectId;
+  };
+  children?: Types.ObjectId[];
 }

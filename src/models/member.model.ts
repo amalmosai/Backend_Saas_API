@@ -38,7 +38,7 @@ const memberSchema = new Schema<IMember>(
     familyRelationship: {
       type: String,
       enum: {
-        values: ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "أخرى"],
+        values: ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "أخرى", "حفيدة"],
         message: "{VALUE} غير مدعوم",
       },
       required: [true, "Family Relationship is required"],
@@ -62,6 +62,11 @@ const memberSchema = new Schema<IMember>(
       type: String,
       default: "avatar.jfif",
     },
+    parents: {
+      father: { type: Schema.Types.ObjectId, ref: "members" },
+      mother: { type: Schema.Types.ObjectId, ref: "members" },
+    },
+    children: [{ type: Schema.Types.ObjectId, ref: "members" }],
   },
   { timestamps: true, versionKey: false }
 );

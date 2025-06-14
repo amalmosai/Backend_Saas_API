@@ -37,12 +37,16 @@ class UserController {
         address,
       } = req.body;
 
-      if (
+      const isRequestingSuperAdmin =
         role === "مدير النظام" ||
-        (Array.isArray(role) && role.includes("مدير النظام"))
-      ) {
+        (Array.isArray(role) && role.includes("مدير النظام"));
+
+      if (isRequestingSuperAdmin) {
         const existingSuperAdmin = await User.findOne({
-          role: "مدير النظام",
+          $or: [
+            { role: "مدير النظام" },
+            { role: { $elemMatch: { $eq: "مدير النظام" } } },
+          ],
         });
 
         if (existingSuperAdmin) {

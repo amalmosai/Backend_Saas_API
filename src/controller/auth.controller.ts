@@ -4,7 +4,10 @@ import bcrypt from "bcryptjs";
 import asyncWrapper from "../middlewares/asynHandler";
 import { createCustomError, HttpCode } from "../errors/customError";
 import { generateToken } from "../utils/generateToken";
-import { sendWelcomeEmail } from "../services/email.service";
+import {
+  sendEmailToUsersWithPermission,
+  sendWelcomeEmail,
+} from "../services/email.service";
 import { clearCookie, setCookie } from "../utils/cookie";
 import { comparePasswords, hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
@@ -104,10 +107,10 @@ class AuthController {
       await notifyUsersWithPermission(
         { entity: "مستخدم", action: "view", value: true },
         {
-          sender: { id: req?.user.id, name: `${email.split("@")[0]}` },
+          sender: { id: newUser._id, name: `${email.split("@")[0]}` },
           message: "تم تسجيل مستخدم جديد",
           action: "create",
-          entity: { type: "مستخدم" },
+          entity: { type: "مستخدم", id: newUser._id },
           metadata: {
             priority: "medium",
           },
@@ -116,6 +119,17 @@ class AuthController {
           readAt: null,
         }
       );
+
+      await sendEmailToUsersWithPermission({
+        entity: "مستخدم",
+        action: "view",
+        subject: "تم تسجيل مستخدم جديد",
+        content: `
+          <h2 style="color: #2F80A2; text-align: center;">تم تسجيل مستخدم جديد</h2>
+          <p style="margin: 10px 0;"> <strong>${email}</strong> : تم إنشاء تسجيل جديد بالبريد الالكتروني</p>
+          <p style="margin: 10px 0;">يرجى تسجيل الدخول للاطلاع على التفاصيل أو مراجعة الحساب.</p>
+        `,
+      });
 
       res.status(HttpCode.CREATED).json({
         sucess: true,

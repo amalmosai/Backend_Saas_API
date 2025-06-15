@@ -5,7 +5,10 @@ import { HttpCode, createCustomError } from "../errors/customError";
 import { hashPassword } from "../utils/password";
 import Tenant from "../models/tenant.model";
 import Permission from "../models/permission.model";
-import { sendAccountStatusEmail } from "../services/email.service";
+import {
+  sendAccountStatusEmail,
+  sendEmailToUsersWithPermission,
+} from "../services/email.service";
 import Member from "../models/member.model";
 import { notifyUsersWithPermission } from "../utils/notify";
 
@@ -153,6 +156,17 @@ class UserController {
         }
       );
 
+      await sendEmailToUsersWithPermission({
+        entity: "مستخدم",
+        action: "view",
+        subject: "تم إنشاء مستخدم جديد",
+        content: `
+          <h2 style="color: #2F80A2; text-align: center;">تم إضافة مستخدم جديد</h2>
+          <p style="margin: 10px 0;"> <strong>${email}</strong>:تم إنشاء حساب جديد بالبريد الالكتروني</p>
+          <p style="margin: 10px 0;">يرجى تسجيل الدخول للاطلاع على التفاصيل أو مراجعة الحساب.</p>
+        `,
+      });
+
       res.status(HttpCode.CREATED).json({
         success: true,
         data: {
@@ -271,6 +285,17 @@ class UserController {
         }
       );
 
+      await sendEmailToUsersWithPermission({
+        entity: "مستخدم",
+        action: "delete",
+        subject: "تم حذف مستخدم",
+        content: `
+          <h2 style="color: #2F80A2; text-align: center;">تم حذف مستخدم</h2>
+          <p style="margin: 10px 0;"> <strong>${userToDelete?.email} : تم حذف حساب بالبريد الالكتروني </strong></p>
+          <p style="margin: 10px 0;">.يرجى تسجيل الدخول للاطلاع على التفاصيل</p>
+        `,
+      });
+
       res.status(HttpCode.OK).json({
         success: true,
         data: null,
@@ -360,6 +385,17 @@ class UserController {
           readAt: null,
         }
       );
+
+      await sendEmailToUsersWithPermission({
+        entity: "مستخدم",
+        action: "update",
+        subject: "تم إنشاء تعديل مستخدم",
+        content: `
+          <h2 style="color: #2F80A2; text-align: center;">تم تعديل مستخدم</h2>
+          <p style="margin: 10px 0;"> <strong>${updatedUser?.email} : تم تعديل حساب بالبريد الالكتروني </strong></p>
+          <p style="margin: 10px 0;">.يرجى تسجيل الدخول للاطلاع على التفاصيل</p>
+        `,
+      });
 
       res.status(HttpCode.OK).json({
         success: true,

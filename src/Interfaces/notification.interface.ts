@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 
 interface UserReference {
-  id: string;
+  id: Types.ObjectId;
   name?: string;
   avatar?: string;
 }

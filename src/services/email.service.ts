@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import IUser from "../Interfaces/user.interface";
+import User from "../models/user.model";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -239,24 +240,54 @@ export const sendPasswordResetEmail = async (
   }
 };
 
-// export const sendVerificationEmail = async (user: IUser, token: string) => {
-//   try {
-//     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+export const sendEmailToUsersWithPermission = async ({
+  entity,
+  action,
+  subject,
+  content,
+}: {
+  entity: string;
+  action: "view" | "create" | "update" | "delete";
+  subject: string;
+  content: string;
+}) => {
+  try {
+    const users = await User.find({
+      permissions: {
+        $elemMatch: {
+          entity,
+          [action]: true,
+        },
+      },
+    });
 
-//     const mailOptions = {
-//       from: process.env.EMAIL_FROM,
-//       to: user.email,
-//       subject: "Verify Your Email Address",
-//       html: `
-//         <h1>Please verify your email</h1>
-//         <p>Click the link below to verify your email address:</p>
-//         <a href="${verificationUrl}">Verify Email</a>
-//         <p>This link will expire in 24 hours.</p>
-//       `,
-//     };
+    const emails = users.map((u) => u.email).filter(Boolean);
 
-//     await transporter.sendMail(mailOptions);
-//   } catch (error) {
-//     console.error("Error sending verification email:", error);
-//   }
-// };
+    if (emails.length === 0) {
+      console.log(`No users found with permission to ${action} ${entity}`);
+      return;
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: emails, // Can be an array
+      subject,
+      html: emailTemplate(content),
+      attachments: [
+        {
+          filename: "logo.png",
+          path: "https://res.cloudinary.com/dmhvfuuke/image/upload/v1748029147/family-logo_z54fug.png",
+          cid: "logo",
+        },
+      ],
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `Email sent to users with '${action}' access on '${entity}':`,
+      info.messageId
+    );
+  } catch (error) {
+    console.error("Error sending email to permitted users:", error);
+  }
+};

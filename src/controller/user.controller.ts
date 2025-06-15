@@ -145,7 +145,6 @@ class UserController {
           action: "create",
           entity: { type: "مستخدم", id: user._id },
           metadata: {
-            // deepLink: `/users/${user._id}`,
             priority: "medium",
           },
           status: "sent",

@@ -11,12 +11,12 @@ import Tenant from "../models/tenant.model";
 import Member from "../models/member.model";
 import crypto from "crypto";
 import { sendPasswordResetEmail } from "../services/email.service";
+import { notifyUsersWithPermission } from "../utils/notify";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
 
 class AuthController {
-  // Register a new user
   register = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { email, password, phone, familyBranch, familyRelationship } =
@@ -101,6 +101,22 @@ class AuthController {
       await newMember.save();
       sendWelcomeEmail(newUser);
 
+      await notifyUsersWithPermission(
+        { entity: "مستخدم", action: "view", value: true },
+        {
+          sender: { id: req?.user.id, name: `${email.split("@")[0]}` },
+          message: "تم تسجيل مستخدم جديد",
+          action: "create",
+          entity: { type: "مستخدم" },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
+
       res.status(HttpCode.CREATED).json({
         sucess: true,
         data: { newUser, newMember },
@@ -109,7 +125,6 @@ class AuthController {
     }
   );
 
-  // User login
   login = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { identifier, password } = req.body;
@@ -166,7 +181,6 @@ class AuthController {
     }
   );
 
-  // User logout
   logout = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       clearCookie(res, "accessToken");

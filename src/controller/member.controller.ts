@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import { notifyUsersWithPermission } from "../utils/notify";
 
 const DEFAULT_IMAGE_URL =
-  "https://res.cloudinary.com/dnuxudh3t/image/upload/v1748100017/avatar_i30lci.jpg";
+  "https://res.cloudinary.com/dmhvfuuke/image/upload/v1750092490/avatar_bdtadk.jpg";
 
 class MemberController {
   createMember = asyncWrapper(

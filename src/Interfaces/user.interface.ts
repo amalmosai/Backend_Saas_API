@@ -1,12 +1,5 @@
 import { Types } from "mongoose";
 
-export type FamilyBranch =
-  | "الفرع الخامس"
-  | "الفرع الرابع"
-  | "الفرع الثالث"
-  | "الفرع الثاني"
-  | "الفرع الاول";
-
 export type FamilyRelationship =
   | "ابن"
   | "ابنة"
@@ -22,7 +15,7 @@ export default interface IUser {
   password: string;
   phone: number;
   role?: string[];
-  familyBranch: FamilyBranch;
+  familyBranch: Types.ObjectId;
   familyRelationship: FamilyRelationship;
   status?: string;
   address?: string;

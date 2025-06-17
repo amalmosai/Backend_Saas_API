@@ -21,20 +21,7 @@ const memberSchema = new Schema<IMember>(
       enum: ["ذكر", "أنثى"],
       required: [true, "Gender is required"],
     },
-    familyBranch: {
-      type: String,
-      enum: {
-        values: [
-          "الفرع الخامس",
-          "الفرع الرابع",
-          "الفرع الثالث",
-          "الفرع الثاني",
-          "الفرع الاول",
-        ],
-        message: "{VALUE} غير مدعوم",
-      },
-      required: [true, "Family Branch is required"],
-    },
+    familyBranch: { type: Schema.Types.ObjectId, ref: "branch" },
     familyRelationship: {
       type: String,
       enum: {

@@ -365,7 +365,7 @@ class UserController {
           updatedUser?.status === "مقبول" ||
           updatedUser?.status === "مرفوض"
         ) {
-          sendAccountStatusEmail(updatedUser);
+          await sendAccountStatusEmail(updatedUser);
         }
       }
 

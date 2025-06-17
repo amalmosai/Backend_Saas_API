@@ -102,7 +102,7 @@ class AuthController {
       });
 
       await newMember.save();
-      sendWelcomeEmail(newUser);
+      await sendWelcomeEmail(newUser);
 
       await notifyUsersWithPermission(
         { entity: "مستخدم", action: "view", value: true },

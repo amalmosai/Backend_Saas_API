@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import IUser from "../Interfaces/user.interface";
 import User from "../models/user.model";
+import { createCustomError, HttpCode } from "../errors/customError";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -14,6 +15,7 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false,
   },
+  connectionTimeout: 30000,
 });
 
 const primaryColor = "#2F80A2";
@@ -81,7 +83,10 @@ export const sendWelcomeEmail = async (user: IUser) => {
 
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error("Error sending welcome email:", error);
+    throw createCustomError(
+      "Error sending welcome email:",
+      HttpCode.BAD_REQUEST
+    );
   }
 };
 
@@ -171,8 +176,10 @@ export const sendAccountStatusEmail = async (user: IUser) => {
       `Account status email sent to ${user.email}: ${info.messageId}`
     );
   } catch (error) {
-    console.error("Error sending account status email:", error);
-    throw error;
+    throw createCustomError(
+      "Error sending account status email:",
+      HttpCode.BAD_REQUEST
+    );
   }
 };
 
@@ -235,8 +242,10 @@ export const sendPasswordResetEmail = async (
 
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error("Error sending password reset email:", error);
-    throw error;
+    throw createCustomError(
+      "Error sending password reset email:",
+      HttpCode.BAD_REQUEST
+    );
   }
 };
 
@@ -288,6 +297,99 @@ export const sendEmailToUsersWithPermission = async ({
       info.messageId
     );
   } catch (error) {
-    console.error("Error sending email to permitted users:", error);
+    throw createCustomError(
+      "Error sending email to permitted users:",
+      HttpCode.BAD_REQUEST
+    );
+  }
+};
+
+export const sendEmailToSystemAdmins = async (data: any) => {
+  try {
+    // Find all users with role "مدير النظام"
+    const systemAdmins = await User.find({ role: "مدير النظام" });
+    const subject = "الشكاوى الرسمية و الاستفسارات العائلية";
+
+    if (systemAdmins.length === 0) {
+      console.log("No system admins found to send email to");
+      return;
+    }
+
+    const emails = systemAdmins.map((admin) => admin.email).filter(Boolean);
+    const content = `
+        <h2 style="color: ${primaryColor}; text-align: center;">الشكاوى الرسمية و الاستفسارات العائلية</h2>
+        <p style="margin: 10px 0;"> <strong>الاسم:</strong> ${data?.name}</p>
+        <p style="margin: 10px 0;"> ${data?.email} <strong>:البريد الإلكتروني </strong></p>
+        <p style="margin: 10px 0;"> ${data?.phone} <strong>:الهاتف</strong></p>
+        <p style="margin: 10px 0;"> <strong>القسم:</strong> ${data?.department} </p>
+        <div style="border-top: 1px solid #eee; margin: 20px 0;"></div>
+        <p style="margin: 10px 0;"><strong>:الرسالة</strong></p>
+        <p style="margin: 10px 0; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">${data?.message}</p>
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: emails,
+      subject,
+      html: emailTemplate(content),
+      attachments: [
+        {
+          filename: "logo.png",
+          path: "https://res.cloudinary.com/dmhvfuuke/image/upload/v1748029147/family-logo_z54fug.png",
+          cid: "logo",
+        },
+      ],
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email sent to system admins: ${info.messageId}`);
+    return info;
+  } catch (error) {
+    console.error("Error sending email to system admins:", error);
+    throw createCustomError(
+      "Error sending email to system admins:",
+      HttpCode.INTERNAL_SERVER_ERROR
+    );
+  }
+};
+
+export const sendEmailToUserWhoContactUs = async (data: any) => {
+  try {
+    const subject = "تأكيد استلام رسالتك - عائلة الدهمش";
+
+    const content = `
+      <h2 style="color: ${primaryColor}; text-align: center;">شكراً لتواصلك معنا</h2>
+      <p style="margin: 10px 0;"> ,عزيزي/عزيزتي ${data?.name}</p>
+      <p style="margin: 10px 0;">.لقد تلقينا رسالتك و سوف نقوم بالرد عليك في أقرب وقت ممكن</p>
+
+      <div style="border-top: 1px solid #eee; margin: 20px 0;"></div>
+
+      <p style="margin: 10px 0;"><strong>:ملخص رسالتك</strong></p>
+      <p style="margin: 10px 0; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">${data?.message}</p>
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: data?.email,
+      subject,
+      html: emailTemplate(content),
+      attachments: [
+        {
+          filename: "logo.png",
+          path: "https://res.cloudinary.com/dmhvfuuke/image/upload/v1748029147/family-logo_z54fug.png",
+          cid: "logo",
+        },
+      ],
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email sent to system user: ${info.messageId}`);
+    return info;
+  } catch (error) {
+    console.error("Error sending email to user:", error);
+    throw createCustomError(
+      "Error sending email to user:",
+      HttpCode.INTERNAL_SERVER_ERROR
+    );
   }
 };

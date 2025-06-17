@@ -156,12 +156,25 @@ class NotificationController {
   getShowStatusByEntityType = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {
       const { entityType } = req.params;
+
+      if (!entityType) {
+        return next(
+          createCustomError("Entity type is required", HttpCode.BAD_REQUEST)
+        );
+      }
+
       const notifications = await Notification.find({
         "entity.type": entityType,
       }).select("show");
 
-      const firstShowStatus = notifications[0].show;
-      const consistent = notifications.every((n) => n.show === firstShowStatus);
+      let firstShowStatus: boolean | undefined = false;
+      let consistent;
+      if (notifications.length !== 0) {
+        firstShowStatus = notifications[0].show;
+        consistent = notifications.every(
+          (n: any) => n.show === firstShowStatus
+        );
+      }
 
       res.status(HttpCode.OK).json({
         success: true,

@@ -17,6 +17,7 @@ import financialRoute from "./Routes/financial.route";
 import eventRoute from "./Routes/event.route";
 import advertisementRoute from "./Routes/advertisement.route";
 import notificationRoute from "./Routes/notification.route";
+import contactRoute from "./Routes/conact.route";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
@@ -88,6 +89,7 @@ app.use("/api/v1/financial", financialRoute);
 app.use("/api/v1/event", eventRoute);
 app.use("/api/v1/advertisement", advertisementRoute);
 app.use("/api/v1/notification", notificationRoute);
+app.use("/api/v1/contact", contactRoute);
 
 // check endpoint
 app.get("/", (req, res) => {

@@ -42,14 +42,6 @@ const userSchema = new Schema<IUserDocument>(
         message: "User must have at least one role",
       },
     },
-    familyBranch: { type: String },
-    familyRelationship: {
-      type: String,
-      enum: {
-        values: ["ابن", "ابنة", "زوجة", "زوج", "حفيد", "أخرى"],
-        message: "{VALUE} غير مدعوم",
-      },
-    },
     status: {
       type: String,
       enum: {

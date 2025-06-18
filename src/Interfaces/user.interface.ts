@@ -1,13 +1,4 @@
 import { Types } from "mongoose";
-
-export type FamilyRelationship =
-  | "ابن"
-  | "ابنة"
-  | "زوجة"
-  | "زوج"
-  | "حفيد"
-  | "أخرى";
-
 export default interface IUser {
   tenantId: Types.ObjectId;
   memberId: Types.ObjectId;
@@ -15,8 +6,6 @@ export default interface IUser {
   password: string;
   phone: number;
   role?: string[];
-  familyBranch: string;
-  familyRelationship: FamilyRelationship;
   status?: string;
   address?: string;
   permissions: any;

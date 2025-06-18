@@ -30,16 +30,7 @@ class UserController {
         await tenant.save();
       }
 
-      let {
-        email,
-        password,
-        phone,
-        familyBranch,
-        familyRelationship,
-        role,
-        status,
-        address,
-      } = req.body;
+      let { email, password, phone, role, status, address } = req.body;
 
       const isRequestingSuperAdmin =
         role === "مدير النظام" ||
@@ -52,16 +43,6 @@ class UserController {
             { role: { $elemMatch: { $eq: "مدير النظام" } } },
           ],
         });
-
-        const existingFamilyBranch = await Branch.findOne({ familyBranch });
-        if (!existingFamilyBranch) {
-          return next(
-            createCustomError(
-              `family branch: ${familyBranch} not found`,
-              HttpCode.NOT_FOUND
-            )
-          );
-        }
 
         if (existingSuperAdmin) {
           return next(
@@ -81,23 +62,6 @@ class UserController {
         );
       }
 
-      if (familyRelationship === "زوج") {
-        const existingHusband = await User.findOne({
-          familyBranch,
-          familyRelationship: "زوج",
-          status: "مقبول",
-        });
-
-        if (existingHusband) {
-          return next(
-            createCustomError(
-              `Branch ${familyBranch} already has an approved husband`,
-              HttpCode.CONFLICT
-            )
-          );
-        }
-      }
-
       const permissionRole = await Permission.findOne({ role });
       let permission;
 
@@ -115,8 +79,6 @@ class UserController {
         email,
         password: hashedPwd,
         phone,
-        familyBranch,
-        familyRelationship,
         permissions: permission,
         status,
         address,
@@ -130,18 +92,11 @@ class UserController {
 
       await user.save();
 
-      const femaleRelationships = new Set(["زوجة", "ابنة"]);
-      const gender = femaleRelationships.has(familyRelationship)
-        ? "أنثى"
-        : "ذكر";
-
       const newMember = new Member({
         userId: user._id,
         fname: email.split("@")[0],
         lname: "الدهمش",
-        gender,
-        familyBranch,
-        familyRelationship,
+        gender: "ذكر",
         isUser: true,
         image: DEFAULT_IMAGE_URL,
       });
@@ -564,6 +519,50 @@ class UserController {
           newUsersTimeframe: "last 7 days",
         },
         message: "Users count retrieved successfully",
+      });
+    }
+  );
+
+  swapMember = asyncWrapper(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { userId } = req.params;
+      const { newMemberId } = req.body;
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return next(createCustomError("User not found", HttpCode.NOT_FOUND));
+      }
+
+      const newMember = await Member.findById(newMemberId);
+      if (!newMember) {
+        return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
+      }
+
+      const currentMemberId = user.memberId;
+
+      user.memberId = newMember._id;
+      await user.save();
+
+      newMember.userId = user._id;
+      newMember.isUser = true;
+      await newMember.save();
+
+      if (currentMemberId) {
+        const currentMember = await Member.findById(currentMemberId);
+        if (currentMember) {
+          currentMember.userId = undefined;
+          currentMember.isUser = false;
+          await currentMember.save();
+        }
+      }
+
+      res.status(HttpCode.OK).json({
+        success: true,
+        data: {
+          user,
+          newMember,
+        },
+        message: "Member swapped successfully",
       });
     }
   );

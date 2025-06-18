@@ -46,4 +46,12 @@ router
   .route("/:id/permissions")
   .patch(authenticateUser, UserController.updatePermissions);
 
+router
+  .route("/swap-member/:userId")
+  .patch(
+    authenticateUser,
+    authorizePermission("مستخدم", "update"),
+    UserController.swapMember
+  );
+
 export default router;

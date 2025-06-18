@@ -180,9 +180,15 @@ class BranchController {
         return next(createCustomError("Branch not found", HttpCode.NOT_FOUND));
       }
 
+      const members = await Member.find({ familyBranch: id })
+        .select("_id userId")
+        .session(session);
+
+      const memberIds = members.map((m) => m._id);
+
       await Promise.all([
-        Member.deleteMany({ familyBranch: branch.name }).session(session),
-        User.deleteMany({ familyBranch: branch.name }).session(session),
+        Member.deleteMany({ familyBranch: id }).session(session),
+        User.deleteMany({ memberId: { $in: memberIds } }).session(session),
         Branch.findByIdAndDelete(id).session(session),
       ]);
 

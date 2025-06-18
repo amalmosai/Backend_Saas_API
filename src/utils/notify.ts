@@ -39,6 +39,16 @@ export async function notifyUsersWithPermission(
       return [];
     }
 
+    const existingNotifications = await Notification.find({
+      "entity.type": notificationData.entity,
+    })
+      .select("show")
+      .session(session);
+
+    let firstShowStatus: boolean | undefined = false;
+    if (existingNotifications.length !== 0) {
+      firstShowStatus = existingNotifications[0].show;
+    }
     // Create notifications
     const notifications = await Notification.insertMany(
       usersWithPermission.map((user) => ({
@@ -46,6 +56,7 @@ export async function notifyUsersWithPermission(
         recipientId: user._id,
         status: "sent",
         isWebDelivered: true,
+        show: firstShowStatus,
       })),
       { session }
     );

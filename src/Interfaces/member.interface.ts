@@ -13,7 +13,7 @@ export default interface IMember {
   fname: string;
   lname: string;
   gender: "أنثى" | "ذكر";
-  familyBranch: Types.ObjectId;
+  familyBranch: string;
   familyRelationship: FamilyRelationship;
   birthday?: Date;
   deathDate?: Date;

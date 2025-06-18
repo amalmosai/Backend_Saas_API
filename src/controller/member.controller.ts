@@ -5,6 +5,7 @@ import { HttpCode, createCustomError } from "../errors/customError";
 import User from "../models/user.model";
 import mongoose from "mongoose";
 import { notifyUsersWithPermission } from "../utils/notify";
+import Branch from "../models/branch.model";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dmhvfuuke/image/upload/v1750092490/avatar_bdtadk.jpg";
@@ -35,6 +36,16 @@ class MemberController {
           createCustomError(
             "First name, last name, gender, familyRelationship and family branch are required.",
             HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      const existingFamilyBranch = await Branch.findOne({ familyBranch });
+      if (!existingFamilyBranch) {
+        return next(
+          createCustomError(
+            `family branch: ${familyBranch} not found`,
+            HttpCode.NOT_FOUND
           )
         );
       }
@@ -170,6 +181,16 @@ class MemberController {
         return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
       }
 
+      const existingFamilyBranch = await Branch.findOne({ familyBranch });
+      if (!existingFamilyBranch) {
+        return next(
+          createCustomError(
+            `family branch: ${familyBranch} not found`,
+            HttpCode.NOT_FOUND
+          )
+        );
+      }
+
       if (req.file?.path) {
         req.body.image = req.file.path.replace(/\\/g, "/");
       }
@@ -271,6 +292,15 @@ class MemberController {
       const skip = (page - 1) * limit;
 
       const { familyBranch, familyRelationship } = req.query;
+      const existingFamilyBranch = await Branch.findOne({ familyBranch });
+      if (!existingFamilyBranch) {
+        return next(
+          createCustomError(
+            `family branch: ${familyBranch} not found`,
+            HttpCode.NOT_FOUND
+          )
+        );
+      }
 
       const filter: Record<string, any> = {};
 

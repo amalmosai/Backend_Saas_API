@@ -11,6 +11,7 @@ import {
 } from "../services/email.service";
 import Member from "../models/member.model";
 import { notifyUsersWithPermission } from "../utils/notify";
+import Branch from "../models/branch.model";
 
 const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/dmhvfuuke/image/upload/v1750092490/avatar_bdtadk.jpg";
@@ -51,6 +52,16 @@ class UserController {
             { role: { $elemMatch: { $eq: "مدير النظام" } } },
           ],
         });
+
+        const existingFamilyBranch = await Branch.findOne({ familyBranch });
+        if (!existingFamilyBranch) {
+          return next(
+            createCustomError(
+              `family branch: ${familyBranch} not found`,
+              HttpCode.NOT_FOUND
+            )
+          );
+        }
 
         if (existingSuperAdmin) {
           return next(
@@ -365,7 +376,7 @@ class UserController {
           updatedUser?.status === "مقبول" ||
           updatedUser?.status === "مرفوض"
         ) {
-          await sendAccountStatusEmail(updatedUser);
+          sendAccountStatusEmail(updatedUser);
         }
       }
 

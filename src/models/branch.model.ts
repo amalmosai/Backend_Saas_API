@@ -14,7 +14,10 @@ export const branchSchema = new Schema<IBranch>(
       type: String,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    versionKey: false,
+  }
 );
 
 const Branch = mongoose.model("branch", branchSchema);

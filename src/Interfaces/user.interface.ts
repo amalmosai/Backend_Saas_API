@@ -15,7 +15,7 @@ export default interface IUser {
   password: string;
   phone: number;
   role?: string[];
-  familyBranch: Types.ObjectId;
+  familyBranch: string;
   familyRelationship: FamilyRelationship;
   status?: string;
   address?: string;

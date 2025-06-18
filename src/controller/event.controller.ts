@@ -72,7 +72,18 @@ class EventController {
 
     const totalEvents = await Event.countDocuments();
     const events = await Event.find()
-      .populate("userId", "-password -permissions -_id ")
+      .populate({
+        path: "userId",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      })
       .skip(skip)
       .limit(limit);
 
@@ -101,10 +112,18 @@ class EventController {
         );
       }
 
-      const event = await Event.findById(eventId).populate(
-        "userId",
-        "-password -permissions -_id "
-      );
+      const event = await Event.findById(eventId).populate({
+        path: "userId",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      });
 
       if (!event) {
         return next(createCustomError("Event not found", HttpCode.NOT_FOUND));
@@ -202,7 +221,18 @@ class EventController {
         { _id: eventId },
         updateData,
         { new: true }
-      );
+      ).populate({
+        path: "userId",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      });
 
       await notifyUsersWithPermission(
         { entity: "مناسبه", action: "update", value: true },

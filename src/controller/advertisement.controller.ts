@@ -65,7 +65,18 @@ class AdvertisementController {
 
     const totalAdvertisements = await Advertisement.countDocuments();
     const advertisements = await Advertisement.find()
-      .populate("userId", "-password -permissions -_id ")
+      .populate({
+        path: "userId",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      })
       .skip(skip)
       .limit(limit);
 
@@ -92,10 +103,18 @@ class AdvertisementController {
         );
       }
 
-      const advertisement = await Advertisement.findById(id).populate(
-        "userId",
-        "-password -permissions -_id "
-      );
+      const advertisement = await Advertisement.findById(id).populate({
+        path: "userId",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      });
 
       if (!advertisement) {
         return next(
@@ -146,7 +165,18 @@ class AdvertisementController {
         id,
         updateData,
         { new: true }
-      );
+      ).populate({
+        path: "userId",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      });
 
       await notifyUsersWithPermission(
         { entity: "اعلان", action: "update", value: true },

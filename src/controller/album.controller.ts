@@ -64,6 +64,14 @@ class AlbumController {
         .populate({
           path: "createdBy",
           select: "-password -permissions -_id ",
+          populate: {
+            path: "memberId",
+            select: "-password -permissions -_id",
+            populate: {
+              path: "familyBranch",
+              select: "-__v -createdAt -updatedAt",
+            },
+          },
         })
         .skip(skip)
         .limit(limit);
@@ -129,10 +137,20 @@ class AlbumController {
         );
       }
 
-      const album = await Album.findById(albumId).populate("images").populate({
-        path: "createdBy",
-        select: "-password -permissions -_id ",
-      });
+      const album = await Album.findById(albumId)
+        .populate("images")
+        .populate({
+          path: "createdBy",
+          select: "-password -permissions -_id ",
+          populate: {
+            path: "memberId",
+            select: "-password -permissions -_id",
+            populate: {
+              path: "familyBranch",
+              select: "-__v -createdAt -updatedAt",
+            },
+          },
+        });
 
       if (!album) {
         return next(createCustomError("Album not found", HttpCode.NOT_FOUND));
@@ -176,6 +194,14 @@ class AlbumController {
         .populate({
           path: "createdBy",
           select: "-password -permissions -_id ",
+          populate: {
+            path: "memberId",
+            select: "-password -permissions -_id",
+            populate: {
+              path: "familyBranch",
+              select: "-__v -createdAt -updatedAt",
+            },
+          },
         });
 
       if (!updatedAlbum) {
@@ -229,6 +255,14 @@ class AlbumController {
         .populate({
           path: "createdBy",
           select: "-password -permissions -_id ",
+          populate: {
+            path: "memberId",
+            select: "-password -permissions -_id",
+            populate: {
+              path: "familyBranch",
+              select: "-__v -createdAt -updatedAt",
+            },
+          },
         });
 
       await notifyUsersWithPermission(
@@ -276,7 +310,15 @@ class AlbumController {
         .populate("images")
         .populate({
           path: "createdBy",
-          select: "-password -permissions -_id",
+          select: "-password -permissions -_id ",
+          populate: {
+            path: "memberId",
+            select: "-password -permissions -_id",
+            populate: {
+              path: "familyBranch",
+              select: "-__v -createdAt -updatedAt",
+            },
+          },
         });
 
       if (!updatedAlbum) {
@@ -329,7 +371,18 @@ class AlbumController {
         .sort({ createdAt: -1 })
         .limit(5)
         .populate("images")
-        .populate("createdBy");
+        .populate({
+          path: "createdBy",
+          select: "-password -permissions -_id ",
+          populate: {
+            path: "memberId",
+            select: "-password -permissions -_id",
+            populate: {
+              path: "familyBranch",
+              select: "-__v -createdAt -updatedAt",
+            },
+          },
+        });
 
       res.status(HttpCode.OK).json({
         success: true,

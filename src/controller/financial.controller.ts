@@ -68,7 +68,18 @@ class TransactionController {
 
     const totalTransactions = await Transaction.countDocuments();
     const transactions = await Transaction.find()
-      .populate("createdBy", "-password")
+      .populate({
+        path: "createdBy",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      })
       .skip(skip)
       .limit(limit);
 
@@ -97,10 +108,18 @@ class TransactionController {
         );
       }
 
-      const transaction = await Transaction.findById(transactionId).populate(
-        "createdBy",
-        "-password"
-      );
+      const transaction = await Transaction.findById(transactionId).populate({
+        path: "createdBy",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      });
 
       if (!transaction) {
         return next(
@@ -184,23 +203,34 @@ class TransactionController {
         { _id: transactionId },
         updateData,
         { new: true }
-      );
+      ).populate({
+        path: "createdBy",
+        select: "-password -permissions -_id ",
+        populate: {
+          path: "memberId",
+          select: "-password -permissions -_id",
+          populate: {
+            path: "familyBranch",
+            select: "-__v -createdAt -updatedAt",
+          },
+        },
+      });
 
       await notifyUsersWithPermission(
-          { entity: "ماليه", action: "update", value: true },
-          {
-            sender: { id: req?.user.id },
-            message: "تم تعديل تقرير مالي",
-            action: "update",
-            entity: { type: "ماليه", id: updatedTransaction?._id },
-            metadata: {
-              priority: "medium",
-            },
-            status: "sent",
-            read: false,
-            readAt: null,
-          }
-        );
+        { entity: "ماليه", action: "update", value: true },
+        {
+          sender: { id: req?.user.id },
+          message: "تم تعديل تقرير مالي",
+          action: "update",
+          entity: { type: "ماليه", id: updatedTransaction?._id },
+          metadata: {
+            priority: "medium",
+          },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
       res.status(HttpCode.OK).json({
         success: true,

@@ -30,7 +30,16 @@ class UserController {
         await tenant.save();
       }
 
-      let { email, password, phone, role, status, address } = req.body;
+      let {
+        email,
+        password,
+        phone,
+        role,
+        status,
+        address,
+        familyBranch,
+        familyRelationship,
+      } = req.body;
 
       const isRequestingSuperAdmin =
         role === "مدير النظام" ||
@@ -99,6 +108,8 @@ class UserController {
         gender: "ذكر",
         isUser: true,
         image: DEFAULT_IMAGE_URL,
+        familyRelationship,
+        familyBranch,
       });
 
       await newMember.save();

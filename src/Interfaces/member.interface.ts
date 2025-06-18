@@ -6,6 +6,8 @@ export type FamilyRelationship =
   | "زوجة"
   | "زوج"
   | "حفيد"
+  | "حفيدة"
+  | "الجد الأعلى"
   | "أخرى";
 
 export default interface IMember {

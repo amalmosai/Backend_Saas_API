@@ -50,10 +50,25 @@ class MemberController {
         );
       }
 
-      if (familyRelationship === "زوج") {
+      //check full name is unique
+      const fullName = `${fname} ${lname}`;
+      req.body.fullName = fullName;
+
+      const existingMember = await Member.findOne({ fullName });
+      if (existingMember) {
+        return next(
+          createCustomError(
+            `يوجد بالفعل عضو باسم '${fullName}'. يرجى اسم اضافى لتمييز فريد مثل '${fullName} 1'.`,
+            HttpCode.BAD_REQUEST
+          )
+        );
+      }
+
+      // check for only one grandfather
+      if (familyRelationship === "الجد الأعلى") {
         const existingHead = await Member.findOne({
           familyBranch,
-          familyRelationship: "زوج",
+          familyRelationship: "الجد الأعلى",
         });
 
         if (existingHead) {
@@ -64,21 +79,21 @@ class MemberController {
             )
           );
         }
-
-        if (gender !== "ذكر") {
-          return next(
-            createCustomError(
-              "Family head (زوج) must be male",
-              HttpCode.BAD_REQUEST
-            )
-          );
-        }
       }
 
+      const memberData = { ...req.body };
+      delete memberData.husband;
+      delete memberData.wives;
+      delete memberData.parents;
+      delete memberData.children;
+
+      const member = await Member.create(memberData);
+      //if member is husband
       if (wives && Array.isArray(wives) && wives.length > 0) {
         const wifeMembers = await Member.find({ _id: { $in: wives } });
 
         if (wifeMembers.length !== wives.length) {
+          await Member.findByIdAndDelete(member._id);
           return next(
             createCustomError(
               "One or more wives not found",
@@ -94,21 +109,39 @@ class MemberController {
             createCustomError("All wives must be female", HttpCode.BAD_REQUEST)
           );
         }
+
+        await Member.findByIdAndUpdate(
+          member._id,
+          { $set: { wives: wives } },
+          { new: true }
+        );
+
+        for (const wifeId of wives) {
+          await Member.findByIdAndUpdate(
+            wifeId,
+            { $set: { husband: member._id } },
+            { new: true }
+          );
+        }
       }
 
+      //if member is wife
       if (familyRelationship === "زوجة" && husband) {
         const husbandMember = await Member.findById(husband);
         if (!husbandMember) {
+          await Member.findByIdAndDelete(member._id);
           return next(
             createCustomError("Husband not found", HttpCode.BAD_REQUEST)
           );
         }
         if (husbandMember.gender !== "ذكر") {
+          await Member.findByIdAndDelete(member._id);
           return next(
             createCustomError("Husband must be male", HttpCode.BAD_REQUEST)
           );
         }
         if (husbandMember.familyBranch !== familyBranch) {
+          await Member.findByIdAndDelete(member._id);
           return next(
             createCustomError(
               "Husband must be from the same family branch",
@@ -116,26 +149,103 @@ class MemberController {
             )
           );
         }
+
+        await Member.findByIdAndUpdate(
+          member._id,
+          { $set: { husband: husband } },
+          { new: true }
+        );
+
+        await Member.findByIdAndUpdate(
+          husband,
+          { $addToSet: { wives: member._id } },
+          { new: true }
+        );
       }
 
       if (parents?.father || parents?.mother) {
-        req.body.parents = {};
+        const updates: any = {};
+
         if (parents.father && mongoose.Types.ObjectId.isValid(parents.father)) {
-          req.body.parents.father = parents.father;
+          const father = await Member.findById(parents.father);
+          if (!father) {
+            await Member.findByIdAndDelete(member._id);
+            return next(
+              createCustomError("Father not found", HttpCode.BAD_REQUEST)
+            );
+          }
+          updates.parents = { father: parents.father };
+          await Member.findByIdAndUpdate(
+            parents.father,
+            { $addToSet: { children: member._id } },
+            { new: true }
+          );
         }
+
         if (parents.mother && mongoose.Types.ObjectId.isValid(parents.mother)) {
-          req.body.parents.mother = parents.mother;
+          const mother = await Member.findById(parents.mother);
+          if (!mother) {
+            await Member.findByIdAndDelete(member._id);
+            return next(
+              createCustomError("Mother not found", HttpCode.BAD_REQUEST)
+            );
+          }
+          updates.parents = { ...updates.parents, mother: parents.mother };
+          await Member.findByIdAndUpdate(
+            parents.mother,
+            { $addToSet: { children: member._id } },
+            { new: true }
+          );
+        }
+
+        if (Object.keys(updates).length > 0) {
+          await Member.findByIdAndUpdate(member._id, updates, { new: true });
         }
       }
 
-      if (
-        children &&
-        typeof children === "string" &&
-        mongoose.Types.ObjectId.isValid(children)
-      ) {
-        req.body.children = [children];
+      if (children) {
+        let childrenArray = Array.isArray(children) ? children : [children];
+        childrenArray = childrenArray.filter((c) =>
+          mongoose.Types.ObjectId.isValid(c)
+        );
+
+        if (childrenArray.length > 0) {
+          const childrenExist = await Member.countDocuments({
+            _id: { $in: childrenArray },
+          });
+          if (childrenExist !== childrenArray.length) {
+            await Member.findByIdAndDelete(member._id);
+            return next(
+              createCustomError(
+                "One or more children not found",
+                HttpCode.BAD_REQUEST
+              )
+            );
+          }
+
+          await Member.findByIdAndUpdate(
+            member._id,
+            { $set: { children: childrenArray } },
+            { new: true }
+          );
+
+          for (const childId of childrenArray) {
+            if (gender === "ذكر") {
+              await Member.findByIdAndUpdate(
+                childId,
+                { $set: { "parents.father": member._id } },
+                { new: true }
+              );
+            } else {
+              await Member.findByIdAndUpdate(
+                childId,
+                { $set: { "parents.mother": member._id } },
+                { new: true }
+              );
+            }
+          }
+        }
       }
-      const member = await Member.create(req.body);
 
       await notifyUsersWithPermission(
         { entity: "عضو", action: "view", value: true },
@@ -247,8 +357,11 @@ class MemberController {
           .populate("userId")
           .populate("husband")
           .populate("wives")
+          .populate("parents.father")
+          .populate("parents.mother")
           .populate("parents")
-          .populate("children");
+          .populate("children")
+          .populate("familyBranch");
       } else {
         updatedMember = await Member.findByIdAndUpdate(id, req.body, {
           new: true,
@@ -257,8 +370,11 @@ class MemberController {
           .populate("userId")
           .populate("husband")
           .populate("wives")
+          .populate("parents.father")
+          .populate("parents.mother")
           .populate("parents")
-          .populate("children");
+          .populate("children")
+          .populate("familyBranch");
       }
 
       await notifyUsersWithPermission(
@@ -318,7 +434,8 @@ class MemberController {
         .populate("userId")
         .populate("husband")
         .populate("wives")
-        .populate("wives")
+        .populate("parents.father")
+        .populate("parents.mother")
         .populate("parents")
         .populate("children")
         .populate("familyBranch")
@@ -349,6 +466,8 @@ class MemberController {
         .populate("userId")
         .populate("husband")
         .populate("wives")
+        .populate("parents.father")
+        .populate("parents.mother")
         .populate("parents")
         .populate("children")
         .populate("familyBranch");

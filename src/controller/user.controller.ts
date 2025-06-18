@@ -71,6 +71,21 @@ class UserController {
         );
       }
 
+      if (familyRelationship === "الجد الأعلى") {
+        const existingHusband = await Member.findOne({
+          familyRelationship: "الجد الأعلى",
+        });
+
+        if (existingHusband) {
+          return next(
+            createCustomError(
+              `Branch ${familyBranch} already has an approved ${familyRelationship}`,
+              HttpCode.CONFLICT
+            )
+          );
+        }
+      }
+
       const permissionRole = await Permission.findOne({ role });
       let permission;
 
@@ -559,12 +574,7 @@ class UserController {
       await newMember.save();
 
       if (currentMemberId) {
-        const currentMember = await Member.findById(currentMemberId);
-        if (currentMember) {
-          currentMember.userId = undefined;
-          currentMember.isUser = false;
-          await currentMember.save();
-        }
+        await Member.findByIdAndDelete(currentMemberId);
       }
 
       res.status(HttpCode.OK).json({
@@ -573,7 +583,7 @@ class UserController {
           user,
           newMember,
         },
-        message: "Member swapped successfully",
+        message: "Member swapped successfully and old member deleted",
       });
     }
   );

@@ -25,17 +25,15 @@ class AuthController {
       const { email, password, phone, familyBranch, familyRelationship } =
         req.body;
 
-      if (familyRelationship === "زوج") {
+      if (familyRelationship === "الجد الأعلى") {
         const existingHusband = await Member.findOne({
-          familyBranch,
-          familyRelationship: "زوج",
-          // status: "مقبول",
+          familyRelationship: "الجد الأعلى",
         });
 
         if (existingHusband) {
           return next(
             createCustomError(
-              `Branch ${familyBranch} already has an approved husband`,
+              `Branch ${familyBranch} already has an approved ${familyRelationship}`,
               HttpCode.CONFLICT
             )
           );

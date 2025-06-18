@@ -67,7 +67,6 @@ class MemberController {
       // check for only one grandfather
       if (familyRelationship === "الجد الأعلى") {
         const existingHead = await Member.findOne({
-          familyBranch,
           familyRelationship: "الجد الأعلى",
         });
 
@@ -305,12 +304,33 @@ class MemberController {
         req.body.image = req.file.path.replace(/\\/g, "/");
       }
 
-      if (familyRelationship === "زوج" && member.familyRelationship !== "زوج") {
-        const existingHead = await Member.findOne({
-          familyBranch,
-          familyRelationship: "زوج",
-          _id: { $ne: member._id },
+      //check for unique fullname
+      if (fname || lname) {
+        const fullName = `${fname || member.fname} ${lname || member.lname}`;
+        const existingMember = await Member.findOne({
+          fullName,
+          _id: { $ne: id },
         });
+        if (existingMember) {
+          return next(
+            createCustomError(
+              `يوجد بالفعل عضو باسم '${fullName}'. يرجى اسم اضافى لتمييز فريد مثل '${fullName} 1'.`,
+              HttpCode.BAD_REQUEST
+            )
+          );
+        }
+        req.body.fullName = fullName;
+      }
+
+      //check only one head for the family
+      if (
+        familyRelationship === "الجد الأعلى" &&
+        member.familyRelationship !== "الجد الأعلى"
+      ) {
+        const existingHead = await Member.findOne({
+          familyRelationship: "الجد الأعلى",
+        });
+
         if (existingHead) {
           return next(
             createCustomError(

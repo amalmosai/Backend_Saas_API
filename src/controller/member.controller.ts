@@ -321,6 +321,7 @@ class MemberController {
         .populate("wives")
         .populate("parents")
         .populate("children")
+        .populate("familyBranch")
         .skip(skip)
         .limit(limit);
 
@@ -349,7 +350,8 @@ class MemberController {
         .populate("husband")
         .populate("wives")
         .populate("parents")
-        .populate("children");
+        .populate("children")
+        .populate("familyBranch");
 
       if (!member) {
         return next(createCustomError("Member not found", HttpCode.NOT_FOUND));

@@ -26,10 +26,10 @@ class AuthController {
         req.body;
 
       if (familyRelationship === "زوج") {
-        const existingHusband = await User.findOne({
+        const existingHusband = await Member.findOne({
           familyBranch,
           familyRelationship: "زوج",
-          status: "مقبول",
+          // status: "مقبول",
         });
 
         if (existingHusband) {
@@ -78,8 +78,6 @@ class AuthController {
         email,
         password: hashedPassword,
         phone: phoneNumber,
-        familyBranch,
-        familyRelationship,
         image: DEFAULT_IMAGE_URL,
       });
 

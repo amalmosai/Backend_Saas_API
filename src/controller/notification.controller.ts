@@ -13,7 +13,7 @@ class NotificationController {
       const skip = (page - 1) * limit;
 
       let baseQuery = {};
-      if (req.user.role === "مدير النظام") {
+      if (req.user.role[0] === "مدير النظام") {
         baseQuery = {
           recipientId: req.user.id,
         };
@@ -23,6 +23,7 @@ class NotificationController {
           show: true,
         };
       }
+      console.log(req.user.role);
       const [notifications, total] = await Promise.all([
         Notification.find(baseQuery)
           .sort({ createdAt: -1 })

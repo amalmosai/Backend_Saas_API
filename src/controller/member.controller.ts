@@ -40,7 +40,7 @@ class MemberController {
         );
       }
 
-      const existingFamilyBranch = await Branch.findOne({ familyBranch });
+      const existingFamilyBranch = await Branch.findOne({ _id: familyBranch });
       if (!existingFamilyBranch) {
         return next(
           createCustomError(
@@ -290,7 +290,7 @@ class MemberController {
         return next(createCustomError("Member not found", HttpCode.NOT_FOUND));
       }
 
-      const existingFamilyBranch = await Branch.findOne({ familyBranch });
+      const existingFamilyBranch = await Branch.findOne({ _id: familyBranch });
       if (!existingFamilyBranch) {
         return next(
           createCustomError(
@@ -460,7 +460,7 @@ class MemberController {
       const skip = (page - 1) * limit;
 
       const { familyBranch, familyRelationship } = req.query;
-      const existingFamilyBranch = await Branch.findOne({ familyBranch });
+      const existingFamilyBranch = await Branch.findOne({ _id: familyBranch });
       if (!existingFamilyBranch) {
         return next(
           createCustomError(

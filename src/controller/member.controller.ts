@@ -371,7 +371,8 @@ class MemberController {
         if (
           !husbandMember ||
           husbandMember.gender !== "ذكر" ||
-          husbandMember.familyBranch !== member.familyBranch
+          husbandMember.familyBranch.toString() !==
+            member.familyBranch.toString()
         ) {
           throw createCustomError(
             "Invalid husband relationship.",
@@ -460,14 +461,18 @@ class MemberController {
       const skip = (page - 1) * limit;
 
       const { familyBranch, familyRelationship } = req.query;
-      const existingFamilyBranch = await Branch.findOne({ _id: familyBranch });
-      if (!existingFamilyBranch) {
-        return next(
-          createCustomError(
-            `family branch: ${familyBranch} not found`,
-            HttpCode.NOT_FOUND
-          )
-        );
+      if (familyBranch) {
+        const existingFamilyBranch = await Branch.findOne({
+          _id: familyBranch,
+        });
+        if (!existingFamilyBranch) {
+          return next(
+            createCustomError(
+              `family branch: ${familyBranch} not found`,
+              HttpCode.NOT_FOUND
+            )
+          );
+        }
       }
 
       const filter: Record<string, any> = {};

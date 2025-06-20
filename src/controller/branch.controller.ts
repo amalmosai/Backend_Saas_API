@@ -174,20 +174,41 @@ class BranchController {
       const session = await mongoose.startSession();
       session.startTransaction();
 
-      const branch = await Branch.findByIdAndDelete(id);
+      const branch = await Branch.findById(id);
       if (!branch) {
         await session.abortTransaction();
         return next(createCustomError("Branch not found", HttpCode.NOT_FOUND));
       }
 
-      const members = await Member.find({ familyBranch: id })
+      const super_admin = await User.findOne({
+        role: { $in: ["مدير النظام"] },
+      });
+
+      const super_admin_member = await Member.findOne({
+        _id: { $in: super_admin?.memberId },
+        familyBranch: id,
+      });
+
+      if (super_admin_member) {
+        await session.abortTransaction();
+        return next(
+          createCustomError(
+            "لا يمكن حذف الفرع الذي يحتوى على مدير النظام",
+            HttpCode.FORBIDDEN
+          )
+        );
+      }
+
+      const members = await Member.find({
+        familyBranch: id,
+      })
         .select("_id userId")
         .session(session);
 
       const memberIds = members.map((m) => m._id);
 
       await Promise.all([
-        Member.deleteMany({ familyBranch: id }).session(session),
+        Member.deleteMany({ _id: { $in: memberIds } }).session(session),
         User.deleteMany({ memberId: { $in: memberIds } }).session(session),
         Branch.findByIdAndDelete(id).session(session),
       ]);
@@ -198,7 +219,7 @@ class BranchController {
       res.status(HttpCode.OK).json({
         success: true,
         data: null,
-        message: "Branch deleted successfully",
+        message: "Branch and members in it deleted successfully",
       });
     }
   );

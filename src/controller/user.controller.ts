@@ -18,8 +18,7 @@ const DEFAULT_IMAGE_URL =
 
 class UserController {
   createUser = asyncWrapper(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
+    async (req: Request, res: Response, next: NextFunction) => {
       const familyName = "Elsaqar";
 
       let tenant = await Tenant.findOne({ familyName });
@@ -31,9 +30,21 @@ class UserController {
         await tenant.save();
       }
 
-      const { email, password, phone, role, status, address, familyBranch, familyRelationship } = req.body;
+      const {
+        email,
+        password,
+        phone,
+        role,
+        status,
+        address,
+        familyBranch,
+        familyRelationship,
+      } = req.body;
 
-      if (role === "مدير النظام" || (Array.isArray(role) && role.includes("مدير النظام"))) {
+      if (
+        role === "مدير النظام" ||
+        (Array.isArray(role) && role.includes("مدير النظام"))
+      ) {
         const existingSuperAdmin = await User.findOne({
           $or: [
             { role: "مدير النظام" },
@@ -42,37 +53,42 @@ class UserController {
         });
 
         if (existingSuperAdmin) {
-          return next(createCustomError(
-            "يوجد مدير نظام واحد فقط مسموح به في النظام",
-            HttpCode.CONFLICT
-          ));
+          return next(
+            createCustomError(
+              "يوجد مدير نظام واحد فقط مسموح به في النظام",
+              HttpCode.CONFLICT
+            )
+          );
         }
       }
 
       if (await User.findOne({ email })) {
-        return next(createCustomError(
-          "البريد الإلكتروني مسجل مسبقاً",
-          HttpCode.BAD_REQUEST
-        ));
+        return next(
+          createCustomError(
+            "البريد الإلكتروني مسجل مسبقاً",
+            HttpCode.BAD_REQUEST
+          )
+        );
       }
 
       if (familyRelationship === "الجد الأعلى") {
         if (await Member.findOne({ familyRelationship: "الجد الأعلى" })) {
-          return next(createCustomError(
-            "يوجد جد أعلى مسجل مسبقاً في النظام",
-            HttpCode.CONFLICT
-          ));
+          return next(
+            createCustomError(
+              "يوجد جد أعلى مسجل مسبقاً في النظام",
+              HttpCode.CONFLICT
+            )
+          );
         }
       }
 
       const userRole = role || "مستخدم";
       const permission = await Permission.findOne({ role: userRole });
-      
+
       if (!permission) {
-        return next(createCustomError(
-          "نوع المستخدم غير صحيح",
-          HttpCode.BAD_REQUEST
-        ));
+        return next(
+          createCustomError("نوع المستخدم غير صحيح", HttpCode.BAD_REQUEST)
+        );
       }
 
       const hashedPwd = await hashPassword(password);
@@ -84,7 +100,9 @@ class UserController {
         permissions: permission.permissions,
         status: status || "قيد الانتظار",
         address,
-        role: Array.isArray(req.body.role) ? req.body.role : [req.body.role || "مستخدم"],
+        role: Array.isArray(req.body.role)
+          ? req.body.role
+          : [req.body.role || "مستخدم"],
       });
 
       await user.save();
@@ -104,36 +122,32 @@ class UserController {
       user.memberId = newMember._id;
       await user.save();
 
-      try {
-        await notifyUsersWithPermission(
-          { entity: "مستخدم", action: "view", value: true },
-          {
-            sender: { id: req?.user?.id, name: email.split("@")[0] },
-            message: "تم إنشاء مستخدم جديد",
-            action: "create",
-            entity: { type: "مستخدم", id: user._id },
-            metadata: { priority: "medium" },
-            status: "sent",
-            read: false,
-            readAt: null,
-          }
-        );
+      await notifyUsersWithPermission(
+        { entity: "مستخدم", action: "view", value: true },
+        {
+          sender: { id: req?.user?.id, name: email.split("@")[0] },
+          message: "تم إنشاء مستخدم جديد",
+          action: "create",
+          entity: { type: "مستخدم", id: user._id },
+          metadata: { priority: "medium" },
+          status: "sent",
+          read: false,
+          readAt: null,
+        }
+      );
 
-        await sendEmailToUsersWithPermission({
-          entity: "مستخدم",
-          action: "view",
-          subject: "تم إنشاء مستخدم جديد",
-          content: `
-            <h2 style="color: #2F80A2; text-align: center;">تم إضافة مستخدم جديد</h2>
-            <p style="margin: 10px 0;"><strong>${email}</strong>: تم إنشاء حساب جديد بالبريد الإلكتروني</p>
-            <p style="margin: 10px 0;">يرجى تسجيل الدخول للاطلاع على التفاصيل أو مراجعة الحساب.</p>
-          `,
-        });
-      } catch (notificationError) {
-        console.error("Error in notifications:", notificationError);
-      }
+      await sendEmailToUsersWithPermission({
+        entity: "مستخدم",
+        action: "view",
+        subject: "تم إنشاء مستخدم جديد",
+        content: `
+          <h2 style="color: #2F80A2; text-align: center;">تم إضافة مستخدم جديد</h2>
+          <p style="margin: 10px 0;"><strong>${email}</strong>: تم إنشاء حساب جديد بالبريد الإلكتروني</p>
+          <p style="margin: 10px 0;">يرجى تسجيل الدخول للاطلاع على التفاصيل أو مراجعة الحساب.</p>
+        `,
+      });
 
-      return res.status(HttpCode.CREATED).json({
+      res.status(HttpCode.CREATED).json({
         success: true,
         data: {
           user: {
@@ -151,16 +165,8 @@ class UserController {
         },
         message: "تم إنشاء المستخدم بنجاح",
       });
-
-    } catch (error) {
-      console.error("Error in createUser:", error);
-      return next(createCustomError(
-        "حدث خطأ أثناء إنشاء المستخدم",
-        HttpCode.INTERNAL_SERVER_ERROR
-      ));
     }
-  }
-);
+  );
 
   getAllUsers = asyncWrapper(
     async (req: Request, res: Response, next: NextFunction) => {

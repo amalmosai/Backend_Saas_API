@@ -550,6 +550,13 @@ class MemberController {
       }
 
       if (member.userId) {
+        const user = await User.findOne({ _id: member.userId });
+        if (req.user.role[0] === "مدير النظام") {
+          next(
+            createCustomError(" لا يمكن حذف مدير النظام", HttpCode.FORBIDDEN)
+          );
+        }
+
         await User.findByIdAndDelete(member.userId).session(session);
       }
 
